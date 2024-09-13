@@ -28,8 +28,8 @@ DEBUG = True
 
 from dotenv import load_dotenv
 # Load environment variables from .env file
-load_dotenv()
-
+dotenv_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path=dotenv_path)
 
 ALLOWED_HOSTS = []
 

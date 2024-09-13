@@ -9,14 +9,8 @@ import { FaRegFileAudio } from "react-icons/fa6";
 import AudioInput from "../Components/AudioInput";
 import ShowLog from "../Components/ShowLog";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import CustomMonacoEditor from "../Components/CustomMonacoEditor";
 
-/*
-CREATE ESTIMATOR salaryPredictor TYPE LR FORMULA $salary~years$;
-CREATE TRAINING PROFILE oneshotSalary WITH [SELECT * FROM salary];
-USE 'data/salarydb.db';
-TRAIN salaryPredictor WITH TRAINING PROFILE oneshotSalary;
-PREDICT WITH TRAINING PROFILE oneshotSalary BY ESTIMATOR salaryPredictor;
-*/
 
 function Operations() {
   const [type, setType] = useState("text");
@@ -91,17 +85,13 @@ function Operations() {
               <h1 className="text-center font-secondary text-2xl font-semibold mb-4 ">
                 Enter your query
               </h1>
-              <TextArea
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  let q = e.target.value.toLowerCase().includes(" over ");
-                  setTestFile(q);
-                }}
-                rows={8}
-                placeholder="Enter your SQL query"
-                className="font-secondary text-gray-800 text-lg"
+              <div className="border rounded box-border border-slate-400">
+              <CustomMonacoEditor
+                query={query}
+                setQuery={setQuery}
+                setTestFile={setTestFile}
               />
+              </div>
               <div className="mt-4">
                 <Upload
                   className="!text-2xl"

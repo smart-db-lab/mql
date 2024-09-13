@@ -1,0 +1,10 @@
+# Ignore the venv directory
+/venv/
+
+# Ignore specific folders in backend_app
+/backend_app/parser/graph/
+/backend_app/parser/table/
+/backend_app/data/files/
+
+# Ignore .env file
+.env

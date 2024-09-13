@@ -191,6 +191,7 @@ def generate(command):
   
     try:
         connection_string = os.getenv("POSTGES_URL")
+        print(connection_string)
         query = f'SELECT * FROM "{dataset_train_name}"'
         conn = create_engine(connection_string)
         df = pd.read_sql_query(query, conn)
