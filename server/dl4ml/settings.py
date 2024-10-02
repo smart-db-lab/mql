@@ -143,3 +143,9 @@ FILE_UPLOAD_HANDLERS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 90242880 
+
+DATASET_FOLDER = os.path.join(BASE_DIR, 'datasets')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'datasets'),
+]

@@ -10,7 +10,7 @@ import AudioInput from "../Components/AudioInput";
 import ShowLog from "../Components/ShowLog";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import CustomMonacoEditor from "../Components/CustomMonacoEditor";
-
+import DefaultDataset from "../Components/DefaultDataset";
 
 function Operations() {
   const [type, setType] = useState("text");
@@ -50,7 +50,7 @@ function Operations() {
         formData.append("file", fileList[0].originFileObj);
       if (testFileList && testFileList[0] && testFileList[0].originFileObj)
         formData.append("test", testFileList[0].originFileObj);
-
+      
       const res = await fetch("http://localhost:8000/test_url/", {
         method: "POST",
         body: formData,
@@ -72,14 +72,46 @@ function Operations() {
   return (
     <div className={` max-w-7xl mx-auto`}>
       <Toaster />
-      {/* {type === "audio" && (
+      <div className="text-center">
+       <Radio.Group
+
+      size="large"
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="font-semibold"
+          buttonStyle="solid"
+        >
+          <Radio.Button value={"text"} className=" !font-secondary">
+            <div className="flex items-center gap-2">
+              <span className="">Use Text</span>{" "}
+              <span>
+                <BiText size={22} />
+              </span>
+            </div>
+          </Radio.Button>
+          <Radio.Button value={"audio"} className=" !font-secondary">
+            <div className="flex items-center gap-2">
+              <span>Use Audio / NLP</span>{" "}
+              <span>
+                <FaRegFileAudio size={22} />
+              </span>
+            </div>
+          </Radio.Button>
+        </Radio.Group>  
+      </div>
+
+
+
+      {type === "audio" && (
         <AudioInput
           audioTranscript={audioTranscript}
           setAudioTranscript={setAudioTranscript}
         />
-      )} */}
+      )}
+
       <div className="">
         <PanelGroup direction="horizontal" className="flex !flex-row gap-4">
+          {type === "text" && (
           <Panel defaultSize={25} minSize={20}>
             <div className="mt-2 flex flex-col  bg-white z-50 py-4 overflow-y-auto">
               <h1 className="text-center font-secondary text-2xl font-semibold mb-4 ">
@@ -142,8 +174,11 @@ function Operations() {
               >
                 Execute
               </button>
+              <div className="mt-4">
+                <DefaultDataset />
+              </div>
             </div>
-          </Panel>
+          </Panel> )}
           <PanelResizeHandle  className="border border-dotted border-gray-300" />
           <Panel defaultSize={30} minSize={50}>
             <div className="relative top-8 pb-8 overflow-y-auto">

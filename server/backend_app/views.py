@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from django.conf import settings
-
+from rest_framework.response import Response
 
 from .parser.query_process import query_process
 from .parser.Function.csvToDB import csvToDB
@@ -14,13 +14,13 @@ from .parser.Function.rearrange_query import rearrange_query
 
 
 @csrf_exempt
-
 @api_view(['GET', 'POST'])
 def test_view(req):
     if req.method == 'POST':
         current_directory = os.path.dirname(__file__)
         if 'file' in req.FILES:
             file = req.FILES['file']
+            print(file)
             file_name = file.name
             file_path = os.path.join(current_directory, f'./data/files/{file_name}')
             if file_name.endswith('.csv'):
@@ -60,3 +60,39 @@ def test_view(req):
         response_json = json.dumps(responses)
         # print("response is", response_json)
         return JsonResponse(response_json, safe=False)
+
+
+
+DATASET_FOLDER = settings.DATASET_FOLDER
+DEFAULT_DATASET = None
+
+import rest_framework.status as status
+@api_view(['GET'])
+def list_datasets(request):
+    try:
+        datasets = [f for f in os.listdir(DATASET_FOLDER) if os.path.isfile(os.path.join(DATASET_FOLDER, f))]
+        return Response({"datasets": datasets}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# Constants
+DATASET_FOLDER = settings.DATASET_FOLDER
+
+@api_view(['POST'])
+def set_datasets(request):
+    file_name = request.data.get('file_name', None)
+
+    if not file_name:
+        return Response({"error": "No file name provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+    file_path = os.path.join(DATASET_FOLDER, file_name)
+    
+    if not os.path.exists(file_path):
+        return Response({"error": f"File '{file_name}' does not exist in the dataset folder."}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        csvToDB(file_path)  
+
+        return Response({"message": f"File '{file_name}' processed successfully."}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

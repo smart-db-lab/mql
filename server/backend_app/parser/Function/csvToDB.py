@@ -1,28 +1,41 @@
 import os
-
 import pandas as pd
-import sqlite3
 from sqlalchemy import create_engine
 import psycopg2
 
 def csvToDB(csv_file):
+    """
+    Converts the provided CSV file to a PostgreSQL table using the connection string
+    defined in the POSTGRES_URL environment variable.
+
+    Handles both file-like objects (uploaded from frontend) and file paths (from server-side folder).
+    """    
     connection_string = os.getenv("POSTGES_URL")
-    try:
-        df = pd.read_csv(csv_file)
 
-        file_name, _ = os.path.splitext(csv_file.name)
+    if not connection_string:
+        print("Connection string is missing. Please set the POSTGRES_URL environment variable.")
+        return
 
-        column_data_types = {column: 'TEXT' for column in df.columns}
-
-        conn = psycopg2.connect(connection_string)
+    try:        
+        if hasattr(csv_file, 'read'):            
+            file_name, _ = os.path.splitext(csv_file.name)            
+            df = pd.read_csv(csv_file)
+        else:            
+            file_name, _ = os.path.splitext(os.path.basename(csv_file))            
+            df = pd.read_csv(csv_file)
+        
+        file_name = file_name[:63]
+        
         engine = create_engine(connection_string)
-
-        # Write the DataFrame to the database using the engine
+        
         df.to_sql(file_name, engine, index=False, if_exists='replace')
 
-        conn.commit()
-        conn.close()
-
-        print("CSV dataset successfully converted to PostgreSQL table.")
-    except :
-        print("error while csv to database")
+        print(f"CSV dataset successfully converted to PostgreSQL table: {file_name}")
+    except FileNotFoundError:
+        print(f"Error: The file '{csv_file}' does not exist.")
+    except pd.errors.EmptyDataError:
+        print(f"Error: The file '{csv_file}' is empty or invalid.")
+    except psycopg2.OperationalError as e:
+        print(f"Database connection error: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred while converting CSV to database: {e}")

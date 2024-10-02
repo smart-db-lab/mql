@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.shortcuts import render
-from django.urls import path
+from django.urls import path,include
 
 
-from backend_app.views import test_view
+from backend_app.views import *
 # def hi(request):
 #     return HttpResponse("<div><p>hi</p></div>")
 
@@ -29,6 +29,6 @@ urlpatterns = [
     # path('',hi),
     
     path('admin/', admin.site.urls),
-    path('test_url/',test_view),
+    path('', include('backend_app.urls')),
     # path('upload_file/', upload)
 ]
