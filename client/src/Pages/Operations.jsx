@@ -53,7 +53,7 @@ function Operations() {
       if (testFileList && testFileList[0] && testFileList[0].originFileObj)
         formData.append("test", testFileList[0].originFileObj);
 
-      const res = await fetch("http://localhost:8000/test_url/", {
+      const res = await fetch("http://localhost:8000/api/test_url/", {
         method: "POST",
         body: formData,
       });
@@ -128,7 +128,7 @@ function Operations() {
           {type === "text" && (
             <Panel defaultSize={25} minSize={20}>
               <div className="mt-2 flex flex-col bg-white z-50 py-4 overflow-y-auto">
-                <h1 className="text-center font-secondary text-lg font-semibold mb-4">
+                <h1 className=" font-secondary text-lg font-semibold mb-4">
                   Enter your query
                 </h1>
                 <div className="border rounded box-border border-slate-400">

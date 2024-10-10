@@ -16,7 +16,7 @@ function ShowLog({ data = [], setData, isloding }) {
         </div>
         {data.length > 0 && (
           <button
-            className="text-lg bg-blue-500 w-20 py-1 text-white font-semibold rounded-md shadow-md hover:bg-red-900 hover:shadow-lg"
+            className="text-md bg-blue-500 w-20 py-1 text-white font-semibold rounded-md shadow-md hover:bg-red-900 hover:shadow-lg"
             onClick={() => setData([])}
           >
             Clear
@@ -92,6 +92,7 @@ function ShowLog({ data = [], setData, isloding }) {
                           {/* <div className="pt-5 gap-2"></div> */}
                           {val[v]["performance_table"] && (
                             <>
+                            <h1 className="font-semibold">Performance Tabel</h1>
                               <PerformanceTable
                                 rowData={val[v]["performance_table"]}
                               />
@@ -100,6 +101,7 @@ function ShowLog({ data = [], setData, isloding }) {
                           <div className="pt-5 "></div>
                           {val[v]["table"] && val[v]["table"].length > 0 && (
                             <>
+                            <h1 className="font-semibold">Data</h1>
                               <AgGridTable rowData={val[v]["table"]} />
                               <Button
                                 type="primary"
@@ -144,6 +146,7 @@ function ShowLog({ data = [], setData, isloding }) {
                                     <Menu.Item
                                       key="3"
                                       onClick={() =>
+                                        
                                         downloadFile(val[v]['graph_link'].graph_jpg, "graph.jpg")
                                       }
                                     >
@@ -152,7 +155,7 @@ function ShowLog({ data = [], setData, isloding }) {
                                   </Menu>
                                 }
                               >
-                                <Button className="mt-2 bg-blue-500">
+                                <Button className="mt-2 bg-blue-500 text-white">
                                   Download Graph
                                 </Button>
                               </Dropdown>
