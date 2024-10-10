@@ -14,7 +14,7 @@ const DefaultDataset = () => {
     const fetchDatasets = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:8000/datasets/");
+        const res = await axios.get("http://localhost:8000/api/datasets/");
         setDatasets(res.data.datasets);
         setLoading(false);
       } catch (error) {
@@ -30,7 +30,7 @@ const DefaultDataset = () => {
     setDSLoading(true);
     setLoadingDataset(fileName);
     axios
-      .post("http://localhost:8000/set_datasets/", { file_name: fileName })
+      .post("http://localhost:8000/api/set_datasets/", { file_name: fileName })
       .then((response) => {
         setSelectedDataset(fileName);
         toast.success("Dataset selected successfully.");
@@ -50,7 +50,7 @@ const DefaultDataset = () => {
 
   return (
     <>
-      <div className="font-bold text-2xl border bg-slate-300 text-center rounded-lg mb-4">
+      <div className=" text-lg border bg-slate-200 text-center rounded-lg mb-4">
         Default Dataset
       </div>
       {loading ? (

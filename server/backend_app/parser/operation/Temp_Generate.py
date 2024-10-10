@@ -87,11 +87,13 @@ def temp_generate(command):
         error_message = str(e.orig)
         response['text'] = f"Error Occurred! {error_message}"
         return response
-    feature_part=command_parts[[part.upper() for part in command_parts].index("FEATURES") + 1].strip()
+
+    feature_part = command_parts[[part.upper() for part in command_parts].index("FEATURES") + 1].strip()
     if "OVER" in [part.upper() for part in command_parts]:
         Over_df = load_over_df(command_parts[[part.upper() for part in command_parts].index('OVER') + 1].split(';')[0])
-        features= Over_df.columns.tolist() if '*' in feature_part else feature_part.split(',') 
-    else: features= df.columns.tolist() if '*' in feature_part else feature_part.split(',') 
+        features = Over_df.columns.tolist() if '*' in feature_part else feature_part.split(',') 
+    else:
+        features = df.columns.tolist() if '*' in feature_part else feature_part.split(',') 
     y = None
     model = None 
     accuracy = None
@@ -102,96 +104,105 @@ def temp_generate(command):
             target = command_parts[[part.upper() for part in command_parts].index("CLASSIFICATION") + 1]
         elif operation_type.upper() == "PREDICTION":
             target = command_parts[[part.upper() for part in command_parts].index("PREDICTION") + 1]
-            if "OVER" in  [part.upper() for part in command_parts] and not Over_df.select_dtypes(include='object').columns.empty :
-                try: features.remove(Over_df.select_dtypes(include='object').columns)
-                except: pass
+            if "OVER" in [part.upper() for part in command_parts] and not Over_df.select_dtypes(include='object').columns.empty:
+                try: 
+                    features.remove(Over_df.select_dtypes(include='object').columns)
+                except: 
+                    pass
             if not (df.select_dtypes(include='object').columns.empty):
-                try:   features.remove(df.select_dtypes(include='object').columns)
-                except: pass
+                try:   
+                    features.remove(df.select_dtypes(include='object').columns)
+                except: 
+                    pass
 
         y = df[target]
         if target in features:
             features.remove(target)
         if operation_type.upper() == "CLASSIFICATION":
             y_encoded = label_encoder.fit_transform(y)
-            y=pd.Series(y_encoded, name=target)
+            y = pd.Series(y_encoded, name=target)
 
     X = df[features]
     
     if operation_type.upper() == "CLUSTERING":
-        response,model,y_pred_df,df = Clustering(command_parts,operation_type,algorithm_name,features,response,X)
-        # return response
+        response, model, y_pred_df, df = Clustering(command_parts, operation_type, algorithm_name, features, response, X)
     elif y is not None and operation_type.upper() != "CLUSTERING":
         test_s = float(command_parts[[part.upper() for part in command_parts].index("TEST") + 2]) if "TEST" in [part.upper() for part in command_parts] else 20
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_s/100, random_state=42)
-        
-        # # Scale the data
-        # scaler = StandardScaler()
-        # X_train = scaler.fit_transform(X_train)
-        # X_test = scaler.transform(X_test)
 
         models = {
             'sklearn': select_algorithm(operation_type, algorithm_name),
-            'pytorch': SimpleNN(X_train.shape[1], len(np.unique(y_train)) if operation_type.upper()=="CLASSIFICATION" else 1, classification=operation_type.upper()=="CLASSIFICATION"),
-            'tensorflow': build_tf_model(X_train.shape[1], len(np.unique(y_train)) if operation_type.upper()=="CLASSIFICATION" else 1, classification=operation_type.upper()=="CLASSIFICATION"),
-            'Auto-ML': select_algorithm(operation_type.upper(),"AUTO_ML"),
+            'pytorch': SimpleNN(X_train.shape[1], len(np.unique(y_train)) if operation_type.upper() == "CLASSIFICATION" else 1, classification=operation_type.upper() == "CLASSIFICATION"),
+            'tensorflow': build_tf_model(X_train.shape[1], len(np.unique(y_train)) if operation_type.upper() == "CLASSIFICATION" else 1, classification=operation_type.upper() == "CLASSIFICATION"),
+            'Auto-ML': select_algorithm(operation_type.upper(), "AUTO_ML"),
         }
         print(models['Auto-ML'])
         results = {}
-        y_pred_Frame={}
+        y_pred_Frame = {}
         if "OVER" in [part.upper() for part in command_parts]:
             X_test = Over_df[features]
             y_test = Over_df[target]
         
-         #auto ml
-        y_pred_Frame['Auto-ML'],score=train_and_evaluate_auto_ml(models['Auto-ML'],X_train, X_test, y_train, y_test,operation_type)
-        results['Auto-ML']= score
-        print("auto",results['Auto-ML'])
+        # Auto ML
+        y_pred_Frame['Auto-ML'], score = train_and_evaluate_auto_ml(models['Auto-ML'], X_train, X_test, y_train, y_test, operation_type)
+        results['Auto-ML'] = score
+        print("auto", results['Auto-ML'])
         print((models['Auto-ML'].fitted_pipeline_.steps[0][1]))
-        auto_algo=f"{json.dumps(str(models['Auto-ML'].fitted_pipeline_.steps[0][1]).split('(')[0])}"
+        auto_algo = f"{json.dumps(str(models['Auto-ML'].fitted_pipeline_.steps[0][1]).split('(')[0])}"
         print(auto_algo)
+
         # Sklearn
+        score_sklearn = None
         if "USING MODEL" in command_upper:
-            model,response= load_saved_model(command_parts[[part.upper() for part in command_parts].index("MODEL") + 1] if "MODEL" in [part.upper() for part in command_parts] else "iris_knn",response)
-            if model is None :
+            model, response = load_saved_model(command_parts[[part.upper() for part in command_parts].index("MODEL") + 1] if "MODEL" in [part.upper() for part in command_parts] else "iris_knn", response)
+            if model is None:
                 return response
             model.fit(X_train, y_train)
             y_pred_Frame["sklearn"] = model.predict(X_test)
-            if operation_type.upper()=="PREDICTION":
+            if operation_type.upper() == "PREDICTION":
                 score_sklearn = r2_score(y_test, y_pred_Frame["sklearn"])
             else:
                 score_sklearn = accuracy_score(y_test, y_pred_Frame["sklearn"])
-            results['sklearn'] = score_sklearn
         else:
-            y_pred_Frame["sklearn"], score_sklearn = train_and_evaluate_sklearn(models['sklearn'], X_train, X_test, y_train, y_test,operation_type)
-        results['sklearn'] = score_sklearn
-        print("sk",algorithm_name,score_sklearn)
+            try:
+                y_pred_Frame["sklearn"], score_sklearn = train_and_evaluate_sklearn(models['sklearn'], X_train, X_test, y_train, y_test, operation_type)
+            except:  
+                print("sklearn model not found: skipped ")
         
-        # Scale the data
-        # scaler = StandardScaler()
-        # X_train = scaler.fit_transform(X_train)
-        # X_test = scaler.transform(X_test)
-
+        if score_sklearn is not None:
+            results['sklearn'] = score_sklearn 
+        print("sk", algorithm_name, score_sklearn)
+        
         # TensorFlow
-        y_pred_Frame["pytorch"], score_torch = train_and_evaluate_torch(models['pytorch'], X_train, X_test, y_train, y_test, epochs=1, classification=operation_type.upper()=="CLASSIFICATION")
+        y_pred_Frame["pytorch"], score_torch = train_and_evaluate_torch(models['pytorch'], X_train, X_test, y_train, y_test, epochs=1, classification=operation_type.upper() == "CLASSIFICATION")
         results['tensorflow'] = score_torch
         
         # PyTorch
-        y_pred_Frame["tensorflow"], score_tf = train_and_evaluate_tf(models['tensorflow'], X_train, X_test, y_train, y_test, epochs=1, classification=operation_type.upper()=="CLASSIFICATION")
+        y_pred_Frame["tensorflow"], score_tf = train_and_evaluate_tf(models['tensorflow'], X_train, X_test, y_train, y_test, epochs=1, classification=operation_type.upper() == "CLASSIFICATION")
         results['pytorch'] = score_tf
 
-        results= dict(sorted(results.items(), key=lambda item: item[1], reverse=True))
+        results = dict(sorted(results.items(), key=lambda item: item[1], reverse=True))
+        
+        performance_table = []
+        for framework, score in results.items():
+            entry = {"Framework": framework, "Score": round(score, 4)}
+            if framework == "Auto-ML":
+                entry["Algorithm"] = auto_algo  
+            if framework == "sklearn":
+                entry["Algorithm"] = algorithm_name  
+            performance_table.append(entry)
+
+        response['performance_table'] = performance_table
         response["text"].append(results)
         print(results)
         
         best_framework = max(results, key=results.get)
-        if best_framework=="Auto-ML":
-            algorithm_name=auto_algo
+        if best_framework == "Auto-ML":
+            algorithm_name = auto_algo
         best_score = results[best_framework]
-        # df=pd.DataFrame(df)
-        X_test=pd.DataFrame(X_test)
+        X_test = pd.DataFrame(X_test)
 
-        y_pred_df = pd.DataFrame(y_pred_Frame[best_framework] , index=y_test.index, columns=["Predicted"])
+        y_pred_df = pd.DataFrame(y_pred_Frame[best_framework], index=y_test.index, columns=["Predicted"])
 
         df = pd.concat([X_test, y_test, y_pred_df], axis=1)
         
@@ -205,7 +216,7 @@ def temp_generate(command):
         response['text'].append(str(f"Best Algorithm: {algorithm_name} By {best_framework} with score: {best_score}"))
 
     if "DISPLAY" in [part.upper() for part in command_parts]:
-        response['graph'] = display_results(operation_type, y_test if y is not None else None, y_pred_df, model, features, df)
+        response['graph'],response['graph_link'] = display_results(operation_type, y_test if y is not None else None, y_pred_df, model, features, df)
         if response['graph']:
-            print("Graph generated")
+            print("Graph generated with plot")
     return response

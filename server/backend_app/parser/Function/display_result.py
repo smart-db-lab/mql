@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
+import uuid
+from django.conf import settings
 from sklearn.metrics import  confusion_matrix
 
 
@@ -35,11 +37,19 @@ def display_results(operation_type, y_test=None, y_pred=None, model=None, featur
             plt.title('Clustering Results')
             plt.legend(title="Cluster")
 
+    formats = ["png", "svg", "jpg"]
+    response = {}
+
+    for fmt in formats:
+        file_name = f"graph_{uuid.uuid4()}.{fmt}"
+        file_path = os.path.join(settings.MEDIA_ROOT, file_name)
+        plt.savefig(file_path, format=fmt)
+        response[f'graph_{fmt}'] = os.path.join(settings.MEDIA_URL, file_name)
+    
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png')
-    url = os.path.join(os.path.dirname(__file__), f"../graph/graph_.png")
-    plt.savefig(url, format='png')
     buffer.seek(0)
     plot_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
     plt.close()
-    return plot_data
+
+    return plot_data,response

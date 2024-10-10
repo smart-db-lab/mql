@@ -5,7 +5,7 @@ import Navbar from "./Components/Navbar";
 import AboutUs from "./Pages/AboutUs";
 import Home from "./Pages/Home";
 import Operations from "./Pages/Operations";
-
+import Sidebar from "./Components/Sidebar";
 function App() {
   return (
     <div className="p-6 px-8">

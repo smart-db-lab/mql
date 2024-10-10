@@ -1,5 +1,5 @@
 import { UploadOutlined } from "@ant-design/icons";
-import { Button, Radio ,Spin} from "antd";
+import { Button, Radio, Drawer, Spin } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import Upload from "antd/es/upload/Upload";
 import React, { useState } from "react";
@@ -21,10 +21,12 @@ function Operations() {
   const [data, setData] = useState([]);
   const [showTestFile, setTestFile] = useState(false);
   const [testFileList, setTestFileList] = useState([]);
-  const [isloding,setisloading] =useState(false)
+  const [isloding, setisloading] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false); // State for Drawer visibility
+
   const handleExecute = async () => {
     setRowData();
-    setisloading(true)
+    setisloading(true);
     if (!query) {
       toast.error("Query can't be empty");
       return;
@@ -50,13 +52,13 @@ function Operations() {
         formData.append("file", fileList[0].originFileObj);
       if (testFileList && testFileList[0] && testFileList[0].originFileObj)
         formData.append("test", testFileList[0].originFileObj);
-      
-      const res = await fetch("http://localhost:8000/test_url/", {
+
+      const res = await fetch("http://localhost:8000/api/test_url/", {
         method: "POST",
         body: formData,
       });
       let d = await res.json();
-      setisloading(false)
+      setisloading(false);
       d = d.replaceAll("NaN", "null");
 
       console.log(d);
@@ -64,43 +66,40 @@ function Operations() {
 
       setData((prev) => [...prev, d]);
     } catch (error) {
-      setisloading(false)
+      setisloading(false);
       console.log(error);
     }
   };
 
   return (
-    <div className={` max-w-7xl mx-auto`}>
+    <div className={`max-w-7xl mx-auto`}>
       <Toaster />
       <div className="text-center">
-       <Radio.Group
-
-      size="large"
+        <Radio.Group
+          // size="large"
           value={type}
           onChange={(e) => setType(e.target.value)}
           className="font-semibold"
           buttonStyle="solid"
         >
-          <Radio.Button value={"text"} className=" !font-secondary">
+          <Radio.Button value={"text"} className="!font-secondary">
             <div className="flex items-center gap-2">
-              <span className="">Use Text</span>{" "}
+              <span className="">Use Text</span>
               <span>
-                <BiText size={22} />
+                <BiText size={18} />
               </span>
             </div>
           </Radio.Button>
-          <Radio.Button value={"audio"} className=" !font-secondary">
+          <Radio.Button value={"audio"} className="!font-secondary">
             <div className="flex items-center gap-2">
-              <span>Use Audio / NLP</span>{" "}
+              <span>Use Audio / NLP</span>
               <span>
-                <FaRegFileAudio size={22} />
+                <FaRegFileAudio size={18} />
               </span>
             </div>
           </Radio.Button>
-        </Radio.Group>  
+        </Radio.Group>
       </div>
-
-
 
       {type === "audio" && (
         <AudioInput
@@ -109,77 +108,97 @@ function Operations() {
         />
       )}
 
-      <div className="">
-        <PanelGroup direction="horizontal" className="flex !flex-row gap-4">
+      <div className="flex">
+        {/* Drawer for Default Dataset */}
+        <Drawer
+          title="Default Dataset"
+          placement="left"
+          closable={true}
+          onClose={() => setDrawerVisible(false)}
+          open={drawerVisible}
+          width={300}
+        >
+          <DefaultDataset />
+        </Drawer>
+
+        <PanelGroup
+          direction="horizontal"
+          className="flex-grow flex !flex-row gap-4"
+        >
           {type === "text" && (
-          <Panel defaultSize={25} minSize={20}>
-            <div className="mt-2 flex flex-col  bg-white z-50 py-4 overflow-y-auto">
-              <h1 className="text-center font-secondary text-2xl font-semibold mb-4 ">
-                Enter your query
-              </h1>
-              <div className="border rounded box-border border-slate-400">
-              <CustomMonacoEditor
-                query={query}
-                setQuery={setQuery}
-                setTestFile={setTestFile}
-              />
-              </div>
-              <div className="mt-4">
-                <Upload
-                  className="!text-2xl"
-                  fileList={fileList.map((file) => ({
-                    ...file,
-                    status: "done",
-                  }))}
-                  beforeUpload={(file) => {
-                    setFileList([
-                      { uid: file.uid, name: file.name, status: "done" },
-                    ]);
-                    return false;
-                  }}
-                  onChange={(e) => setFileList(e.fileList)}
-                >
-                  {fileList.length === 0 && (
-                    <Button icon={<UploadOutlined />}>Upload File</Button>
-                  )}
-                </Upload>
-              </div>
-              {showTestFile && (
+            <Panel defaultSize={25} minSize={20}>
+              <div className="mt-2 flex flex-col bg-white z-50 py-4 overflow-y-auto">
+                <h1 className=" font-secondary text-lg font-semibold mb-4">
+                  Enter your query
+                </h1>
+                <div className="border rounded box-border border-slate-400">
+                  <CustomMonacoEditor
+                    query={query}
+                    setQuery={setQuery}
+                    setTestFile={setTestFile}
+                  />
+                </div>
                 <div className="mt-4">
                   <Upload
-                    className="!text-2xl"
-                    fileList={testFileList.map((file) => ({
+                    className="!text-lg"
+                    fileList={fileList.map((file) => ({
                       ...file,
                       status: "done",
                     }))}
                     beforeUpload={(file) => {
-                      setTestFileList([
+                      setFileList([
                         { uid: file.uid, name: file.name, status: "done" },
                       ]);
                       return false;
                     }}
-                    onChange={(e) => setTestFileList(e.fileList)}
+                    onChange={(e) => setFileList(e.fileList)}
                   >
-                    {testFileList.length === 0 && (
-                      <Button icon={<UploadOutlined />}>
-                        Upload Test File
-                      </Button>
+                    {fileList.length === 0 && (
+                      <Button icon={<UploadOutlined />}>Upload File</Button>
                     )}
                   </Upload>
+                  <button
+                    onClick={() => setDrawerVisible(true)}
+                    className="mt-4 w-28 text-sm border-slate-400 border rounded-lg text-black p-1  shadow-lg  hover:bg-slate-100 hover:shadow-lg"
+                  >
+                    Default Dataset
+                  </button>
                 </div>
-              )}
-              <button
-                className="mt-4 w-28 ml-auto text-xl bg-blue-500 rounded-lg text-white p-2 px-4 font-secondary shadow-lg font-semibold hover:bg-blue-900 hover:shadow-lg"
-                onClick={handleExecute}
-              >
-                Execute
-              </button>
-              <div className="mt-4">
-                <DefaultDataset />
+                {showTestFile && (
+                  <div className="mt-4">
+                    <Upload
+                      className="!text-lg"
+                      fileList={testFileList.map((file) => ({
+                        ...file,
+                        status: "done",
+                      }))}
+                      beforeUpload={(file) => {
+                        setTestFileList([
+                          { uid: file.uid, name: file.name, status: "done" },
+                        ]);
+                        return false;
+                      }}
+                      onChange={(e) => setTestFileList(e.fileList)}
+                    >
+                      {testFileList.length === 0 && (
+                        <Button icon={<UploadOutlined />}>
+                          Upload Test File
+                        </Button>
+                      )}
+                    </Upload>
+                  </div>
+                )}
+
+                <button
+                  className="mt-4 w-28 ml-auto text-lg bg-blue-500 rounded-lg text-white p-1 px-2 font-bold font-secondary shadow-lg hover:bg-blue-900 hover:shadow-lg"
+                  onClick={handleExecute}
+                >
+                  Execute
+                </button>
               </div>
-            </div>
-          </Panel> )}
-          <PanelResizeHandle  className="border border-dotted border-gray-300" />
+            </Panel>
+          )}
+          <PanelResizeHandle className="border border-dotted border-gray-300" />
           <Panel defaultSize={30} minSize={50}>
             <div className="relative top-8 pb-8 overflow-y-auto">
               <ShowLog data={data} setData={setData} isloding={isloding} />
@@ -192,7 +211,3 @@ function Operations() {
 }
 
 export default Operations;
-
-/*
-
-*/
