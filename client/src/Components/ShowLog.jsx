@@ -4,11 +4,12 @@ import AgGridTable from "../Components/AgGridTable";
 import { Collapse, Spin, Dropdown, Menu, Button } from "antd";
 import { IoIosArrowForward } from "react-icons/io";
 import Papa from "papaparse";
-import { downloadCSV, downloadGraph } from "../Utility/download";
+import { downloadCSV, downloadGraph,downloadFile } from "../Utility/download";
+import PerformanceTable from "./PerformanceTable";
 function ShowLog({ data = [], setData, isloding }) {
   return (
     <>
-      <h1 className="font-secondary flex justify-between text-2xl font-semibold">
+      <h1 className="font-secondary flex justify-between text-lg font-semibold">
         <div className="flex">
           <span className="text-md">Output</span>
           <div className="m-2 flex">{isloding && <Spin />}</div>
@@ -42,7 +43,7 @@ function ShowLog({ data = [], setData, isloding }) {
                     <div className="space-y-6 !w-full bg-transparent">
                       {Object.keys(val).map((v, ind) => (
                         <div key={ind}>
-                          {val[v]["text"] && (
+                          {/* {val[v]["text"] && (
                             <div className="font-secondary text-lg text-gray-800 font-semibold relative -top-2">
                               {val[v]["text"].map((item, index) => (
                                 <div key={index}>
@@ -85,8 +86,18 @@ function ShowLog({ data = [], setData, isloding }) {
                                   )}
                                 </div>
                               ))}
+
                             </div>
+                          )} */}
+                          {/* <div className="pt-5 gap-2"></div> */}
+                          {val[v]["performance_table"] && (
+                            <>
+                              <PerformanceTable
+                                rowData={val[v]["performance_table"]}
+                              />
+                            </>
                           )}
+                          <div className="pt-5 "></div>
                           {val[v]["table"] && val[v]["table"].length > 0 && (
                             <>
                               <AgGridTable rowData={val[v]["table"]} />
@@ -104,27 +115,47 @@ function ShowLog({ data = [], setData, isloding }) {
                               </Button>
                             </>
                           )}
-                          {val[v]["graph"] && (
+                          {val[v]?.graph  && (
                             <>
+                            {console.log(val[v]['graph_link'])}
                               <img
-                                src={`data:image/png;base64,${val[v]["graph"]}`}
+                                src={`data:image/png;base64,${val[v]['graph']}`}
                                 alt="Graph"
-                                onError={(e) => {
-                                  e.target.src = "image doesn't load";
-                                }}
                               />
-                              <Button
-                                type="primary"
-                                className="mt-2 bg-blue-500"
-                                onClick={() =>
-                                  downloadGraph(
-                                    val[v]["graph"],
-                                    `graph-${key + 1}.png`
-                                  )
+                              <Dropdown
+                                overlay={
+                                  <Menu>
+                                    <Menu.Item
+                                      key="1"
+                                      onClick={() =>
+                                        downloadFile(val[v]['graph_link'].graph_png, "graph.png")
+                                      }
+                                    >
+                                      Download as PNG
+                                    </Menu.Item>
+                                    <Menu.Item
+                                      key="2"
+                                      onClick={() =>
+                                        downloadFile(val[v]['graph_link'].graph_svg, "graph.svg")
+                                      }
+                                    >
+                                      Download as SVG
+                                    </Menu.Item>
+                                    <Menu.Item
+                                      key="3"
+                                      onClick={() =>
+                                        downloadFile(val[v]['graph_link'].graph_jpg, "graph.jpg")
+                                      }
+                                    >
+                                      Download as JPG
+                                    </Menu.Item>
+                                  </Menu>
                                 }
                               >
-                                Download Graph
-                              </Button>
+                                <Button className="mt-2 bg-blue-500">
+                                  Download Graph
+                                </Button>
+                              </Dropdown>
                             </>
                           )}
                         </div>
@@ -137,7 +168,7 @@ function ShowLog({ data = [], setData, isloding }) {
           ))}
         </div>
       ) : (
-        <div className="bg-gray-100 shadow-md rounded mt-2 p-3 py-10 text-center font-medium text-xl">
+        <div className="bg-gray-100 shadow-md rounded mt-2 p-3 py-7 text-center font-medium text-md">
           <p>Run a query to see the output</p>
         </div>
       )}

@@ -149,3 +149,6 @@ DATASET_FOLDER = os.path.join(BASE_DIR, 'datasets')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'datasets'),
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')

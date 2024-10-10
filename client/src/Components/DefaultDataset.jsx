@@ -50,7 +50,7 @@ const DefaultDataset = () => {
 
   return (
     <>
-      <div className="font-bold text-2xl border bg-slate-300 text-center rounded-lg mb-4">
+      <div className=" text-lg border bg-slate-200 text-center rounded-lg mb-4">
         Default Dataset
       </div>
       {loading ? (

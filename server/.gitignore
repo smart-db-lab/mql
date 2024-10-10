@@ -8,3 +8,4 @@
 
 # Ignore .env file
 .env
+/media/
