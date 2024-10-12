@@ -84,7 +84,7 @@ function Operations() {
         >
           <Radio.Button value={"text"} className="!font-secondary">
             <div className="flex items-center gap-2">
-              <span className="">Use Text</span>
+              <span className="">Query Editor</span>
               <span>
                 <BiText size={18} />
               </span>
@@ -92,7 +92,15 @@ function Operations() {
           </Radio.Button>
           <Radio.Button value={"audio"} className="!font-secondary">
             <div className="flex items-center gap-2">
-              <span>Use Audio / NLP</span>
+              <span>Audio Editor</span>
+              <span>
+                <FaRegFileAudio size={18} />
+              </span>
+            </div>
+          </Radio.Button>
+          <Radio.Button value={"nlp"} className="!font-secondary">
+            <div className="flex items-center gap-2">
+              <span>NLP Editor</span>
               <span>
                 <FaRegFileAudio size={18} />
               </span>
@@ -122,13 +130,25 @@ function Operations() {
         </Drawer>
 
         <PanelGroup
+          key={type}
           direction="horizontal"
           className="flex-grow flex !flex-row gap-4"
         >
+           {type === "nlp" && (
+            <Panel defaultSize={25} minSize={20}>
+            <div className="">
+              <h1 className="text-lg font-semibold mt-5">Enter your query</h1>
+              <TextArea size='large' className="h-52 " style={{ height: '200px' }}></TextArea>
+              <button className="mt-4 bg-blue-500 rounded text-white p-2 px-4 font-secondary font-semibold">
+                Convert To DL
+              </button>
+            </div>
+            </Panel>
+          )}
           {type === "text" && (
             <Panel defaultSize={25} minSize={20}>
               <div className="mt-2 flex flex-col bg-white z-50 py-4 overflow-y-auto">
-                <h1 className="text-center font-secondary text-lg font-semibold mb-4">
+                <h1 className=" font-secondary text-lg font-semibold mb-4">
                   Enter your query
                 </h1>
                 <div className="border rounded box-border border-slate-400">
@@ -188,12 +208,14 @@ function Operations() {
                     </Upload>
                   </div>
                 )}
-
+                <h1 className="text-lg font-semibold mt-3">
+                  Click on Send Button to MQL Query Processor To Generate Output
+                </h1>
                 <button
-                  className="mt-4 w-28 ml-auto text-lg bg-blue-500 rounded-lg text-white p-1 px-2 font-bold font-secondary shadow-lg hover:bg-blue-900 hover:shadow-lg"
+                  className="mt-4 w-38 ml-auto text-lg bg-blue-500 rounded-lg text-white p-1 px-2 font-bold font-secondary shadow-lg hover:bg-blue-900 hover:shadow-lg"
                   onClick={handleExecute}
                 >
-                  Execute
+                  Execute Query
                 </button>
               </div>
             </Panel>

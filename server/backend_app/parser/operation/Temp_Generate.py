@@ -77,7 +77,7 @@ def temp_generate(command):
 
     global model, accuracy, label_name, response
     response = {'text': [], 'graph': '', 'table': ''}
-
+    response['query']=command
     try:
         connection_string = os.getenv("POSTGES_URL")
         query = f'SELECT * FROM "{dataset_train_name}"'

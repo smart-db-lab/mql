@@ -90,8 +90,16 @@ function ShowLog({ data = [], setData, isloding }) {
                             </div>
                           )} */}
                           {/* <div className="pt-5 gap-2"></div> */}
+                          {val[v]["query"]&& (
+                            <>
+                            <h1 className=" font-semibold">Query :</h1>
+                            <p className="bg-slate-100 p-2 font-secondary m-2">
+                            {val[v]["query"]}</p>
+                            </>
+                          )}
                           {val[v]["performance_table"] && (
                             <>
+                            <h1  className="font-semibold ">Performance Table :</h1>
                               <PerformanceTable
                                 rowData={val[v]["performance_table"]}
                               />
@@ -100,6 +108,7 @@ function ShowLog({ data = [], setData, isloding }) {
                           <div className="pt-5 "></div>
                           {val[v]["table"] && val[v]["table"].length > 0 && (
                             <>
+                            <h1  className="font-semibold ">Data Table :</h1>
                               <AgGridTable rowData={val[v]["table"]} />
                               <Button
                                 type="primary"
@@ -152,7 +161,7 @@ function ShowLog({ data = [], setData, isloding }) {
                                   </Menu>
                                 }
                               >
-                                <Button className="mt-2 bg-blue-500">
+                                <Button className="mt-2 text-white bg-blue-500">
                                   Download Graph
                                 </Button>
                               </Dropdown>
@@ -168,7 +177,7 @@ function ShowLog({ data = [], setData, isloding }) {
           ))}
         </div>
       ) : (
-        <div className="bg-gray-100 shadow-md rounded mt-2 p-3 py-7 text-center font-medium text-md">
+        <div className="bg-gray-50  rounded mt-2 p-3 py-7 text-center font-medium text-md">
           <p>Run a query to see the output</p>
         </div>
       )}

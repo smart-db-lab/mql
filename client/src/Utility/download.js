@@ -35,7 +35,7 @@ export const downloadGraph = (graphUrl, fileName) => {
 
 export const downloadFile = async (url, filename) => {
   try {
-    const response = await fetch(url, {
+    const response = await fetch(`http://localhost:8000${url}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
