@@ -53,7 +53,7 @@ function Operations() {
       if (testFileList && testFileList[0] && testFileList[0].originFileObj)
         formData.append("test", testFileList[0].originFileObj);
 
-      const res = await fetch("http://localhost:8000/test_url/", {
+      const res = await fetch("http://localhost:8000/api/test_url/", {
         method: "POST",
         body: formData,
       });

@@ -16,7 +16,7 @@ function ShowLog({ data = [], setData, isloding }) {
         </div>
         {data.length > 0 && (
           <button
-            className="text-lg bg-blue-500 w-20 py-1 text-white font-semibold rounded-md shadow-md hover:bg-red-900 hover:shadow-lg"
+            className="text-md bg-blue-500 w-20 py-1 text-white font-semibold rounded-md shadow-md hover:bg-red-900 hover:shadow-lg"
             onClick={() => setData([])}
           >
             Clear
@@ -153,6 +153,7 @@ function ShowLog({ data = [], setData, isloding }) {
                                     <Menu.Item
                                       key="3"
                                       onClick={() =>
+                                        
                                         downloadFile(val[v]['graph_link'].graph_jpg, "graph.jpg")
                                       }
                                     >

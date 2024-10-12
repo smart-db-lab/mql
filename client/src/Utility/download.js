@@ -14,7 +14,6 @@ export const downloadCSV = (tableData, fileName) => {
 
 // export const downloadGraph = (graphData, fileName) => {
 // const link = document.createElement('a');
-// // link.href = `data:image/png;base64,${graphData}`;
 // link.href = graphData
 // link.setAttribute('download', fileName);
 // document.body.appendChild(link);
@@ -24,9 +23,10 @@ export const downloadCSV = (tableData, fileName) => {
 
 export const downloadGraph = (graphUrl, fileName) => {
   const link = document.createElement('a');
-  link.href = graphUrl;  // Use the direct URL instead of base64
+  link.href = graphUrl; 
   link.setAttribute('download', fileName);
-  // link.setAttribute('target', '_blank');  // Open in new tab
+  // link.href = `data:image/png;base64,${graphData}`;
+  // link.setAttribute('target', '_blank');  
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -46,22 +46,17 @@ export const downloadFile = async (url, filename) => {
       throw new Error('Network response was not ok');
     }
 
-    const blob = await response.blob(); // Convert the response to a blob
-    const downloadUrl = window.URL.createObjectURL(blob); // Create a URL for the blob
+    const blob = await response.blob(); 
+    const downloadUrl = window.URL.createObjectURL(blob); 
 
-    // Create an anchor element to download the file
     const a = document.createElement('a');
     a.href = downloadUrl;
-    a.download = filename; // Set the desired file name
-    document.body.appendChild(a); // Append the anchor to the body
-    a.click(); // Programmatically click the anchor to trigger the download
-    a.remove(); // Remove the anchor from the body
-    window.URL.revokeObjectURL(downloadUrl); // Free up memory
+    a.download = filename; 
+    document.body.appendChild(a); 
+    a.click(); 
+    a.remove(); 
+    window.URL.revokeObjectURL(downloadUrl);
   } catch (error) {
     console.error('Error downloading the file:', error);
   }
 };
-
-// Example usage:
-// downloadFile('/media/graph_a347abb9-2eef-41cf-9880-99c64a1a4371.jpg', 'downloaded_image.jpg');
-

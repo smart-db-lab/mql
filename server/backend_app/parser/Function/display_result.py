@@ -40,7 +40,6 @@ def display_results(operation_type, y_test=None, y_pred=None, model=None, featur
     formats = ["png", "svg", "jpg"]
     response = {}
 
-    # Saving to media folder
     for fmt in formats:
         file_name = f"graph_{uuid.uuid4()}.{fmt}"
         file_path = os.path.join(settings.MEDIA_ROOT, file_name)
