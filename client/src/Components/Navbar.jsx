@@ -14,7 +14,7 @@ function Navbar() {
       <ul className="flex items-center gap-4 font-secondary font-semibold text-lg w-full justify-end">
         <li>
           <Link
-            to={"/operation"}
+            to={"/mql/operation"}
             className="hover:text-blue-400 hover:underline"
           >
             Operations
@@ -22,7 +22,7 @@ function Navbar() {
         </li>
         <li>
           <Link
-            to={"/about-us"}
+            to={"mql/about-us"}
             className="hover:text-blue-400 hover:underline"
           >
             About Us
