@@ -48,15 +48,20 @@ def test_view(req):
             
         #     data[0],data[1]=data[1].strip(),data[0].strip()
         #     print(data)
-        print(data)
+        print(data, type(data))
+        if type(data) == str:
+            data = [data]
+        print(data, type(data))
+        
         responses = {}  
         for index, cmd in enumerate(data):
             if cmd != " " and cmd !="" and cmd != ";":
                 responses[f'response_{index}'] = {}
                 for response_dict in query_process(cmd):
-                    responses[f'response_{index}'].update(response_dict)  # Append yielded dictionaries to the list
+                    print("response", response_dict)
+                    responses[f'response_{index}'].update(response_dict)  
 
-        # print(responses)
+        print(responses)
         response_json = json.dumps(responses)
         # print("response is", response_json)
         return JsonResponse(response_json, safe=False)

@@ -52,7 +52,8 @@ def simple_generate(command):
             if "ALGORITHM" in [part.upper() for part in command_parts]
             else None
         )
-    except:
+    except Exception as e:
+        print(f" got debug error -{e}")
         pass    
 
     global model, accuracy, label_name, response

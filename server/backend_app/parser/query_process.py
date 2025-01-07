@@ -30,7 +30,7 @@ def query_process(data):
             print("in generate")
             yield generate(data)
         else:
-            print("in simple generate")
+            print("in temp generate")
             yield temp_generate(data)
 
     elif data_upper.startswith("INSPECT"):
@@ -48,6 +48,7 @@ def query_process(data):
         yield impute(data)
 
     else:
-        query = f'{data};'
+        query = f'{data}'
+        print(query)
         yield Query_manipulate(query)
     

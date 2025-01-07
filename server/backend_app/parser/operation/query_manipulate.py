@@ -17,6 +17,7 @@ def Query_manipulate(query):
             with conn.connect():
                 df=pd.read_sql_query(query, conn)
                 response['table'] = df.to_dict(orient="records")
+                # print(response)
                 return response
         else:
             # Execute DDL or DML query

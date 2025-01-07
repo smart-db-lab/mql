@@ -73,6 +73,7 @@ def temp_generate(command):
             else ""
         )
     except:
+        
         pass    
 
     global model, accuracy, label_name, response
@@ -129,7 +130,7 @@ def temp_generate(command):
     elif y is not None and operation_type.upper() != "CLUSTERING":
         test_s = float(command_parts[[part.upper() for part in command_parts].index("TEST") + 2]) if "TEST" in [part.upper() for part in command_parts] else 20
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_s/100, random_state=42)
-
+        print( f"{operation_type} ******************{algorithm_name}")
         models = {
             'sklearn': select_algorithm(operation_type, algorithm_name),
             'pytorch': SimpleNN(X_train.shape[1], len(np.unique(y_train)) if operation_type.upper() == "CLASSIFICATION" else 1, classification=operation_type.upper() == "CLASSIFICATION"),
@@ -137,6 +138,7 @@ def temp_generate(command):
             'Auto-ML': select_algorithm(operation_type.upper(), "AUTO_ML"),
         }
         print(models['Auto-ML'])
+        print(models['sklearn'])
         results = {}
         y_pred_Frame = {}
         if "OVER" in [part.upper() for part in command_parts]:
@@ -167,7 +169,7 @@ def temp_generate(command):
             try:
                 y_pred_Frame["sklearn"], score_sklearn = train_and_evaluate_sklearn(models['sklearn'], X_train, X_test, y_train, y_test, operation_type)
             except:  
-                print("sklearn model not found: skipped ")
+                print(f"sklearn model not found: skipped {models['sklearn']} ")
         
         if score_sklearn is not None:
             results['sklearn'] = score_sklearn 
