@@ -43,6 +43,7 @@ function ShowLog({ data = [], setData, isloding }) {
                     <div className="space-y-6 !w-full bg-transparent">
                       {Object.keys(val).map((v, ind) => (
                         <div key={ind}>
+                          {console.log("val[v]",val[v])}
                           {/* {val[v]["text"] && (
                             <div className="font-secondary text-lg text-gray-800 font-semibold relative -top-2">
                               {val[v]["text"].map((item, index) => (
@@ -97,6 +98,13 @@ function ShowLog({ data = [], setData, isloding }) {
                             {val[v]["query"]}</p>
                             </>
                           )}
+                          {val[v]["text"]&& (
+                            <>
+                            <h1 className=" font-semibold">Log :</h1>
+                            <p className="bg-slate-100 p-2 font-secondary m-2">
+                            {val[v]["text"]}</p>
+                            </>
+                          )}
                           {val[v]["performance_table"] && (
                             <>
                             <h1  className="font-semibold ">Performance Table :</h1>
@@ -109,6 +117,7 @@ function ShowLog({ data = [], setData, isloding }) {
                           {val[v]["table"] && val[v]["table"].length > 0 && (
                             <>
                             <h1  className="font-semibold ">Data Table :</h1>
+                            {console.log("here table ",val[v]["table"])}
                               <AgGridTable rowData={val[v]["table"]} />
                               <Button
                                 type="primary"

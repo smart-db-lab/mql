@@ -58,10 +58,10 @@ def test_view(req):
             if cmd != " " and cmd !="" and cmd != ";":
                 responses[f'response_{index}'] = {}
                 for response_dict in query_process(cmd):
-                    print("response", response_dict)
+                    # print("response", response_dict)
                     responses[f'response_{index}'].update(response_dict)  
 
-        print(responses)
+        # print(responses)
         response_json = json.dumps(responses)
         # print("response is", response_json)
         return JsonResponse(response_json, safe=False)

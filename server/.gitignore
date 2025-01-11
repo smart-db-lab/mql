@@ -9,3 +9,4 @@
 # Ignore .env file
 .env
 /media/
+**/__pycache__/
