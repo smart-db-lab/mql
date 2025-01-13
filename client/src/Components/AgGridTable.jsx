@@ -26,7 +26,7 @@ function AgGridTable({ rowData }) {
   );
   const defaultColDef = useMemo(
     () => ({
-      filter: true, // Enable filtering on all columns
+      filter: true,
       resizable: true,
       minWidth: 150,
     }),
@@ -38,7 +38,6 @@ function AgGridTable({ rowData }) {
   };
   return (
     <div className="ag-theme-quartz !w-full" style={{ height: 330, width: "100%" }}>
-      {/* The AG Grid component */}
       <AgGridReact
         onGridReady={onGridReady}
         onFirstDataRendered={onGridReady}

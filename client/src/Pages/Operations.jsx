@@ -209,7 +209,7 @@ function Operations() {
                   </div>
                 )}
                 <h1 className="text-lg font-semibold mt-3">
-                  Click on Send Button to MQL Query Processor To Generate Output
+                  Click on Execute QueryButton to MQL Query Processor To Generate Output
                 </h1>
                 <button
                   className="mt-4 w-38 ml-auto text-lg bg-blue-500 rounded-lg text-white p-1 px-2 font-bold font-secondary shadow-lg hover:bg-blue-900 hover:shadow-lg"

@@ -1,8 +1,7 @@
 
-import "ag-grid-community/styles/ag-grid.css"; // Core CSS
-// import "ag-grid-community/styles/ag-theme-quartz-dark.css"; // Theme
-import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
-import { AgGridReact } from "ag-grid-react"; // React Grid Logic
+import "ag-grid-community/styles/ag-grid.css"; 
+import "ag-grid-community/styles/ag-theme-quartz.css"; 
+import { AgGridReact } from "ag-grid-react"; 
 import React, { useMemo, useRef } from "react";
 
 function PerformanceTable({ rowData }) {
@@ -14,7 +13,7 @@ function PerformanceTable({ rowData }) {
 
   const defaultColDef = useMemo(
     () => ({
-      filter: true, // Enable filtering on all columns
+      filter: true, 
       resizable: true,
       minWidth: 150,
     }),
@@ -26,7 +25,6 @@ function PerformanceTable({ rowData }) {
   };
   return (
     <div className="ag-theme-quartz !w-full" style={{ height: 250, width: "100%" }}>
-      {/* The AG Grid component */}
       <AgGridReact
         onGridReady={onGridReady}
         onFirstDataRendered={onGridReady}

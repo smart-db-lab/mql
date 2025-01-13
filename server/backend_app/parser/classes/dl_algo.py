@@ -187,6 +187,7 @@ def load_saved_model(model_name,response):
     try:
         with open(url, 'rb') as file:
             model = pickle.load(file)  
+            print(f"Model loaded successfully from {url}")
             return model,response
     except:
         response["text"] = f"Model: [{model_name}] Not found."

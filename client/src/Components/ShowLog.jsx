@@ -43,7 +43,8 @@ function ShowLog({ data = [], setData, isloding }) {
                     <div className="space-y-6 !w-full bg-transparent">
                       {Object.keys(val).map((v, ind) => (
                         <div key={ind}>
-                          {console.log("val[v]",val[v])}
+                            {console.log("here table ",val[v])}
+
                           {/* {val[v]["text"] && (
                             <div className="font-secondary text-lg text-gray-800 font-semibold relative -top-2">
                               {val[v]["text"].map((item, index) => (
@@ -117,7 +118,6 @@ function ShowLog({ data = [], setData, isloding }) {
                           {val[v]["table"] && val[v]["table"].length > 0 && (
                             <>
                             <h1  className="font-semibold ">Data Table :</h1>
-                            {console.log("here table ",val[v]["table"])}
                               <AgGridTable rowData={val[v]["table"]} />
                               <Button
                                 type="primary"

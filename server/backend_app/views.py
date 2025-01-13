@@ -20,7 +20,7 @@ def test_view(req):
         current_directory = os.path.dirname(__file__)
         if 'file' in req.FILES:
             file = req.FILES['file']
-            print(file)
+            # print(file)
             file_name = file.name
             file_path = os.path.join(current_directory, f'./data/files/{file_name}')
             if file_name.endswith('.csv'):
@@ -48,10 +48,10 @@ def test_view(req):
             
         #     data[0],data[1]=data[1].strip(),data[0].strip()
         #     print(data)
-        print(data, type(data))
+        # print(data, type(data))
         if type(data) == str:
             data = [data]
-        print(data, type(data))
+        # print(data, type(data))
         
         responses = {}  
         for index, cmd in enumerate(data):
