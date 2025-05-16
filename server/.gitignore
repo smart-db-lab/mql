@@ -10,3 +10,5 @@
 .env
 /media/
 **/__pycache__/
+*.log
+*.pyc

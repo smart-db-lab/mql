@@ -30,6 +30,7 @@ urlpatterns = [
     # path('',hi),
     
     path('admin/', admin.site.urls),
+    path('api/auth/', include('auth_app.urls')),
     path('api/', include('backend_app.urls')),
     # path('upload_file/', upload)
 ]

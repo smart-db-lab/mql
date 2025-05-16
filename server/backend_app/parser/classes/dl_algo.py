@@ -29,7 +29,9 @@ from sqlalchemy import create_engine
 from ..Function.display_result import display_results
 from ..Function.select_algorithm import select_algorithm
 
-
+import h2o
+from h2o.automl import H2OAutoML
+from h2o.frame import H2OFrame
 from sklearn.metrics import accuracy_score, r2_score
 from torch.utils.data import DataLoader, TensorDataset
 import tensorflow as tf
@@ -37,22 +39,72 @@ from keras.models import Sequential
 from keras.layers import Dense
 matplotlib.use('Agg')
 
-def train_and_evaluate_auto_ml(model, X_train, X_test, y_train, y_test,operation_type):
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    # if hasattr(model, 'score'):
-    if operation_type.upper()=="CLASSIFICATION":
-        print("in score ")
-        score = accuracy_score(y_test, y_pred)
-        print(score)
-        try:
-            print(".score", model.score(X_test, y_test))
-            score= model.score(X_test, y_test)
-        except:
-            pass
+def train_and_evaluate_auto_ml(model, X_train, X_test, y_train, y_test, operation_type):
+    # Handle PyCaret
+    if 'pycaret' in str(type(model)).lower():
+        if y_train.name not in X_train.columns:
+            X_train[y_train.name] = y_train
+        if y_test.name not in X_test.columns:
+            X_test[y_test.name] = y_test
+        best_model = model.compare_models()  # Auto-select best model
+        pred_df = model.predict_model(best_model, data=X_test)
+        print(pred_df.head())  # Debugging print
+        # Ensure 'Label' column exists in the prediction DataFrame
+        if 'prediction_label' not in pred_df.columns:
+            raise ValueError("PyCaret's predict_model did not return a 'prediction_label' column. Check the input data and setup.")
+        
+        y_pred = pred_df['prediction_label'].values
+
+        if operation_type.upper() == "CLASSIFICATION":
+            score = accuracy_score(y_test, y_pred)
+        else:
+            score = r2_score(y_test, y_pred)
+        return y_pred, score
+
+    # Handle H2OAutoML
+    elif isinstance(model, H2OAutoML):
+        # Combine train and test into H2OFrames
+        h2o.init()
+        target_name = y_train.name or 'target'
+        X_train_df = pd.DataFrame(X_train, columns=X_train.columns if hasattr(X_train, 'columns') else None)
+        X_test_df = pd.DataFrame(X_test, columns=X_test.columns if hasattr(X_test, 'columns') else None)
+        y_train_df = pd.Series(y_train).rename(target_name)
+        y_test_df = pd.Series(y_test).rename(target_name)
+
+        train_df = pd.concat([X_train_df.reset_index(drop=True), y_train_df.reset_index(drop=True)], axis=1)
+        test_df = pd.concat([X_test_df.reset_index(drop=True), y_test_df.reset_index(drop=True)], axis=1)
+
+        h2o_train = h2o.H2OFrame(train_df)
+        h2o_test = h2o.H2OFrame(test_df)
+
+        # Ensure target is categorical for classification
+        if operation_type.upper() == "CLASSIFICATION":
+            h2o_train[target_name] = h2o_train[target_name].asfactor()
+            h2o_test[target_name] = h2o_test[target_name].asfactor()
+
+        features = [col for col in h2o_train.columns if col != target_name]
+        model.train(x=features, y=target_name, training_frame=h2o_train)
+
+        predictions = model.leader.predict(h2o_test).as_data_frame()
+        y_pred = predictions['predict'].values
+
+        score = accuracy_score(y_test_df, y_pred) if operation_type.upper() == "CLASSIFICATION" else r2_score(y_test_df, y_pred)
+        return y_pred, score
+
+    
+
+    # Handle TPOT and H2O (sklearn-style)
     else:
-        score = r2_score(y_test, y_pred)
-    return y_pred, score
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+
+        if operation_type.upper() == "CLASSIFICATION":
+            score = accuracy_score(y_test, y_pred)
+        else:
+            score = r2_score(y_test, y_pred)
+
+        return y_pred, score
+
 
 def train_and_evaluate_sklearn(model, X_train, X_test, y_train, y_test,operation_type):
     model.fit(X_train, y_train)
@@ -141,6 +193,10 @@ def train_and_evaluate_torch(model, X_train, X_test, y_train, y_test, epochs=3, 
 
 
 def train_and_evaluate_tf(model, X_train, X_test, y_train, y_test, epochs=3, classification=False):
+    # Ensure the input data matches the model's expected input shape
+    X_train = np.array(X_train)  # Convert to NumPy array if not already
+    X_test = np.array(X_test)
+    
     # Fit the model
     model.fit(X_train, y_train, epochs=epochs, verbose=0)
     
@@ -169,8 +225,9 @@ def train_and_evaluate_tf(model, X_train, X_test, y_train, y_test, epochs=3, cla
         return y_pred, score
 
 def build_tf_model(input_dim, output_dim, classification):
+    # Ensure the input_dim matches the number of features in the input data
     model = Sequential([
-        Dense(64, activation='relu', input_dim=input_dim),
+        Dense(64, activation='relu', input_dim=(input_dim)),  # Correct input shape
         Dense(64, activation='relu'),
         Dense(output_dim, activation='softmax' if classification else None)
     ])

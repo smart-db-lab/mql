@@ -12,12 +12,9 @@ from backend_app.views import *
 
 
 urlpatterns = [
-    # path('',lambda request: render(request, 'hi.html')),
-    # path('',hi),
     path('test_url/',test_view, name='test_view'),
     path('datasets/', list_datasets, name='list_datasets'),
     path('set_datasets/',set_datasets, name='set_datasets'),
-    # path('upload_file/', upload) 
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

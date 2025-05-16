@@ -77,7 +77,8 @@ def temp_generate(command):
         
         pass    
 
-    global model, accuracy, label_name, response
+    global model, accuracy, label_name, response, best_pycaret_model
+    best_pycaret_model = None
     response = {'text': [], 'graph': '', 'table': ''}
     response['query']=command
     try:
@@ -131,28 +132,45 @@ def temp_generate(command):
     elif y is not None and operation_type.upper() != "CLUSTERING":
         test_s = float(command_parts[[part.upper() for part in command_parts].index("TEST") + 2]) if "TEST" in [part.upper() for part in command_parts] else 20
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_s/100, random_state=42)
-        print( f"{operation_type} ******************{algorithm_name}")
+        print(f"{operation_type} ******************{algorithm_name}")
         models = {
             'sklearn': select_algorithm(operation_type, algorithm_name),
-            'pytorch': SimpleNN(X_train.shape[1], len(np.unique(y_train)) if operation_type.upper() == "CLASSIFICATION" else 1, classification=operation_type.upper() == "CLASSIFICATION"),
-            'tensorflow': build_tf_model(X_train.shape[1], len(np.unique(y_train)) if operation_type.upper() == "CLASSIFICATION" else 1, classification=operation_type.upper() == "CLASSIFICATION"),
-            'Auto-ML': select_algorithm(operation_type.upper(), "AUTO_ML"),
+            # 'pytorch': SimpleNN(X_train.shape[1], len(np.unique(y_train)) if operation_type.upper() == "CLASSIFICATION" else 1, classification=operation_type.upper() == "CLASSIFICATION"),
+            # 'tensorflow': build_tf_model(X_train.shape[1], len(np.unique(y_train)) if operation_type.upper() == "CLASSIFICATION" else 1, classification=operation_type.upper() == "CLASSIFICATION"),
+            'tpot': select_algorithm(operation_type.upper(), "tpot"),
+            'pycaret': select_algorithm(operation_type.upper(), "pycaret", data=pd.concat([X, df[target]], axis=1), target=target),
+            # 'h2o': select_algorithm(operation_type.upper(), "h2o"),
         }
-        # print(models['Auto-ML'])
-        # print(models['sklearn'])
         results = {}
         y_pred_Frame = {}
         if "OVER" in [part.upper() for part in command_parts]:
             X_test = Over_df[features]
             y_test = Over_df[target]
         
-        # Auto ML
-        y_pred_Frame['Auto-ML'], score = train_and_evaluate_auto_ml(models['Auto-ML'], X_train, X_test, y_train, y_test, operation_type)
-        results['Auto-ML'] = score
-        print("auto", results['Auto-ML'])
-        print((models['Auto-ML'].fitted_pipeline_.steps[0][1]))
-        auto_algo = f"{json.dumps(str(models['Auto-ML'].fitted_pipeline_.steps[0][1]).split('(')[0])}"
+        # # TPOT Auto ML
+        y_pred_Frame['tpot'], score_tpot = train_and_evaluate_auto_ml(models['tpot'], X_train, X_test, y_train, y_test, operation_type)
+        results['tpot'] = score_tpot
+        auto_algo = f"{json.dumps(str(models['tpot'].fitted_pipeline_.steps[0][1]).split('(')[0])}"
         print(auto_algo)
+
+        print("TPOT score:", results['tpot'])
+
+        # PyCaret Auto ML
+        try:
+            y_pred_Frame['pycaret'], score_pycaret = train_and_evaluate_auto_ml(models['pycaret'], X_train, X_test, y_train, y_test, operation_type)
+            results['pycaret'] = score_pycaret
+            print("PyCaret score:", results['pycaret'])
+            best_pycaret_model= str(models['pycaret'].compare_models())
+        except ValueError as e:
+            print(f"PyCaret setup error: {e}")
+        except Exception as e:
+            print(f"PyCaret training error: {e}")
+            # results['pycaret'] = None
+
+        # H2O Auto ML
+        # y_pred_Frame['h2o'], score_h2o = train_and_evaluate_auto_ml(models['h2o'], X_train, X_test, y_train, y_test, operation_type)
+        # results['h2o'] = score_h2o
+        # print("H2O score:", results['h2o'])
 
         # Sklearn
         score_sklearn = None
@@ -175,33 +193,37 @@ def temp_generate(command):
         if score_sklearn is not None:
             results['sklearn'] = score_sklearn 
         print("sk", algorithm_name, score_sklearn)
+        print("in p", models["pycaret"])
         
-        # TensorFlow
-        y_pred_Frame["pytorch"], score_torch = train_and_evaluate_torch(models['pytorch'], X_train, X_test, y_train, y_test, epochs=1, classification=operation_type.upper() == "CLASSIFICATION")
-        results['tensorflow'] = score_torch
+        # # PyTorch
+        # y_pred_Frame["pytorch"], score_torch = train_and_evaluate_torch(models['pytorch'], X_train, X_test, y_train, y_test, epochs=1, classification=operation_type.upper() == "CLASSIFICATION")
+        # results['pytorch'] = score_torch
         
-        # PyTorch
-        y_pred_Frame["tensorflow"], score_tf = train_and_evaluate_tf(models['tensorflow'], X_train, X_test, y_train, y_test, epochs=1, classification=operation_type.upper() == "CLASSIFICATION")
-        results['pytorch'] = score_tf
+        # # TensorFlow
+        # y_pred_Frame["tensorflow"], score_tf = train_and_evaluate_tf(models['tensorflow'], X_train, X_test, y_train, y_test, epochs=1, classification=operation_type.upper() == "CLASSIFICATION")
+        # results['tensorflow'] = score_tf
 
         results = dict(sorted(results.items(), key=lambda item: item[1], reverse=True))
+        print(best_pycaret_model)
         
         performance_table = []
         for framework, score in results.items():
             entry = {"Framework": framework, "Score": round(score, 4)}
-            if framework == "Auto-ML":
-                entry["Algorithm"] = auto_algo  
+            if framework == "tpot":
+                entry["Algorithm"] = auto_algo
+            elif framework == "pycaret":
+                entry["Algorithm"] = best_pycaret_model
+            elif framework == "h2o":
+                entry["Algorithm"] = "H2O"
+                entry["Algorithm"] = framework  
             if framework == "sklearn":
                 entry["Algorithm"] = algorithm_name  
             performance_table.append(entry)
 
         response['performance_table'] = performance_table
-        # response["text"].append(results)
         print(results)
         
         best_framework = max(results, key=results.get)
-        if best_framework == "Auto-ML":
-            algorithm_name = auto_algo
         best_score = results[best_framework]
         X_test = pd.DataFrame(X_test)
 
@@ -216,7 +238,9 @@ def temp_generate(command):
         url = os.path.join(os.path.dirname(__file__), f"../table/table_.csv")
         df.to_csv(url, index=False)
         
-        response['text'].append(str(f"Best Algorithm: {algorithm_name} By {best_framework} with score: {best_score}"))
+        # response['text'].append(str(f"Best Algorithm: {algorithm_name} By {best_framework} with score: {best_score}"))
+
+        response['text'].append(str(f"Best Algorithm: {best_framework} with score: {best_score}"))
 
     if "DISPLAY" in [part.upper() for part in command_parts]:
         response['graph'],response['graph_link'] = display_results(operation_type, y_test if y is not None else None, y_pred_df, model, features, df)

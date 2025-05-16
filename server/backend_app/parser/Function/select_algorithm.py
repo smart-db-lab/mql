@@ -32,16 +32,66 @@ from torch.utils.data import DataLoader, TensorDataset
 import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense
-def select_algorithm(operation_type, algorithm_name, **kwargs):
-    if algorithm_name == 'AUTO_ML':
-        if operation_type.upper() == "PREDICTION":
-            tpot_regressor = TPOTRegressor(generations=2, population_size=5, verbosity=2)
-            print("in tpot",tpot_regressor)
-            return tpot_regressor
-        elif operation_type.upper() == "CLASSIFICATION":
-            tpot_classifier = TPOTClassifier(generations=1, population_size=1, verbosity=1)
-            return tpot_classifier
 
+from pycaret.regression import *
+from pycaret.classification import *
+from pycaret.clustering import *
+import h2o
+from h2o.automl import H2OAutoML
+
+
+
+
+def select_algorithm(operation_type, algorithm_name, **kwargs):
+    if algorithm_name == 'tpot':
+        if operation_type.upper() == "PREDICTION":
+            from tpot import TPOTRegressor
+            return TPOTRegressor(generations=2, population_size=5, verbosity=2)
+        elif operation_type.upper() == "CLASSIFICATION":
+            from tpot import TPOTClassifier
+            return TPOTClassifier(generations=1, population_size=1, verbosity=1)
+
+    elif algorithm_name == 'pycaret':
+        if operation_type.upper() == "PREDICTION":
+            if 'data' in kwargs and 'target' in kwargs:
+                exp = RegressionExperiment()
+                exp.setup(data=kwargs['data'], target=kwargs['target'], session_id=123,)
+                return exp
+            else:
+                raise ValueError("For PyCaret prediction, 'data' and 'target' must be provided in kwargs.")
+
+        elif operation_type.upper() == "CLASSIFICATION":
+            if 'data' in kwargs and 'target' in kwargs:
+                if kwargs['target'] not in kwargs['data'].columns:
+                    raise ValueError(f"Target column '{kwargs['target']}' not found in the provided data.")
+                exp = ClassificationExperiment()
+                exp.setup(data=kwargs['data'], target=kwargs['target'], session_id=123)
+                return exp
+            else:
+                raise ValueError("For PyCaret classification, 'data' and 'target' must be provided in kwargs.")
+
+        elif operation_type.upper() == "CLUSTERING":
+            if 'data' in kwargs:
+                exp = ClusteringExperiment()
+                exp.setup(data=kwargs['data'], session_id=123)
+                return exp
+            else:
+                raise ValueError("For PyCaret clustering, 'data' must be provided in kwargs.")
+    elif algorithm_name == 'h2o':
+        h2o.init()
+        if operation_type.upper() == "PREDICTION":
+            aml = H2OAutoML(max_models=20, seed=1)
+            print("H2O AutoML for Prediction initialized")
+            return aml
+        elif operation_type.upper() == "CLASSIFICATION":
+            aml = H2OAutoML(max_models=20, seed=1)
+            print("H2O AutoML for Classification initialized")
+            return aml
+        elif operation_type.upper() == "CLUSTERING":
+            print("H2O AutoML does not directly support clustering")
+            return None
+
+        
     print(algorithm_name, operation_type)
     # Scikit-learn models
     prediction_algorithms = {
