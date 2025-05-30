@@ -1,22 +1,38 @@
 import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import "regenerator-runtime/runtime";
+import { Toaster } from "react-hot-toast";
+
 import Navbar from "./Components/Navbar";
-import AboutUs from "./Pages/AboutUs";
+import Footer from "./Components/Footer";
 import Home from "./Pages/Home";
+import AboutUs from "./Pages/AboutUs";
 import Operations from "./Pages/Operations";
-import Sidebar from "./Components/Sidebar";
+import SignupPage from "./Pages/SignupPage";
+import LoginPage from "./Pages/LoginPage";
+import ContactUs from "./Components/ContactUs";
+import ForgotPassword from "./Pages/ForgotPassword";
 
 function App() {
   return (
-    <div className="p-6 px-8">
+    <div className="p-6 px-8 dark:bg-gray-900 min-h-screen flex flex-col">
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Navigate to="/mql" />} />
-        <Route path="/mql" element={<Home />} />
-        <Route path="/mql/operation" element={<Operations />} />
-        <Route path="/mql/about-us" element={<AboutUs />} />
-      </Routes>
+      
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/mql" element={<Home />} />
+          <Route path="/mql/about-us" element={<AboutUs />} />
+          <Route path="/mql/contact" element={<ContactUs />} />
+          <Route path="/mql/operation" element={<Operations />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/signin" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="*" element={<Navigate to="/mql" replace />} />
+        </Routes>
+      </main>
+      
+      <Footer />
     </div>
   );
 }

@@ -15,11 +15,12 @@
     "antd": "^5.14.1",
     "axios": "^1.7.7",
     "core-js": "^3.36.0",
+    "js-cookie": "^3.0.5",
     "papaparse": "^5.4.1",
     "react": "^18.2.0",
     "react-audio-voice-recorder": "^2.2.0",
     "react-dom": "^18.2.0",
-    "react-hot-toast": "^2.4.1",
+    "react-hot-toast": "^2.5.2",
     "react-icons": "^5.0.1",
     "react-resizable-panels": "^2.0.19",
     "react-router-dom": "^6.22.1",
@@ -38,5 +39,6 @@
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "vite": "^5.1.0"
-  }
+  },
+  "packageManager": "yarn@4.9.0+sha512.5f5f00843eae735dfab6f0442524603e987ceca55e98b36eb0120f4e58908e5b1406545321e46627dca97d15d562f23dc13fb96cabd4e6bc92d379f619001e4e"
 }

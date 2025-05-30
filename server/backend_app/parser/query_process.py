@@ -7,6 +7,7 @@ from .operation.Simple_Generate import simple_generate
 from .operation.Generate import generate
 from .operation.Inspect import inspect
 from .operation.Construct import construct
+from .operation.Drop_dataset import drop_dataset
 from .operation import *
 from .Function.Imputer import impute
 from .operation.Temp_Generate import temp_generate
@@ -47,6 +48,9 @@ def query_process(data):
         '''
         yield impute(data)
 
+    elif data_upper.startswith("DROP"):
+        '''    DROP  Dataset Boston;  '''
+        yield drop_dataset(data)
     else:
         query = f'{data}'
         yield Query_manipulate(query)

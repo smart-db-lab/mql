@@ -3,3 +3,8 @@
 **/__pycache__/
 .venv*
 /servernew/
+logs.log
+# server_refactor/
+servernew/
+**/.DS_Store
+**/__pycache__

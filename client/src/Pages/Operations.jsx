@@ -11,6 +11,7 @@ import ShowLog from "../Components/ShowLog";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import CustomMonacoEditor from "../Components/CustomMonacoEditor";
 import DefaultDataset from "../Components/DefaultDataset";
+import { processQuery } from "../services/apiServices";
 
 function Operations() {
   const [type, setType] = useState("text");
@@ -22,18 +23,21 @@ function Operations() {
   const [showTestFile, setTestFile] = useState(false);
   const [testFileList, setTestFileList] = useState([]);
   const [isloding, setisloading] = useState(false);
-  const [drawerVisible, setDrawerVisible] = useState(false); // State for Drawer visibility
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const handleExecute = async () => {
     setRowData();
     setisloading(true);
+    setFileList([]);
     if (!query) {
       toast.error("Query can't be empty");
+      setisloading(false);
       return;
     }
     let inputs = query.trim();
     if (inputs[inputs.length - 1] !== ";") {
       toast.error("Invalid Query.");
+      setisloading(false);
       return;
     }
     inputs = inputs.split(";");
@@ -42,6 +46,7 @@ function Operations() {
     for (let input of inputs) {
       if (!input) {
         toast.error("Invalid Query.");
+        setisloading(false);
         return;
       }
     }
@@ -53,26 +58,20 @@ function Operations() {
       if (testFileList && testFileList[0] && testFileList[0].originFileObj)
         formData.append("test", testFileList[0].originFileObj);
 
-      const res = await fetch("http://localhost:8000/api/test_url/", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await processQuery(formData);
       let d = await res.json();
       setisloading(false);
-      d = d.replaceAll("NaN", "null");
-
-      console.log(d);
+      d = JSON.stringify(d).replaceAll("NaN", "null");
       d = JSON.parse(d);
-
       setData((prev) => [...prev, d]);
     } catch (error) {
       setisloading(false);
-      console.log(error);
+      toast.error(error.message || "Error executing query");
     }
   };
 
   return (
-    <div className={`max-w-7xl mx-auto`}>
+    <div className={`max-w-7xl mt-3 mx-auto`}>
       <Toaster />
       <div className="text-center">
         <Radio.Group
@@ -134,15 +133,15 @@ function Operations() {
           direction="horizontal"
           className="flex-grow flex !flex-row gap-4"
         >
-           {type === "nlp" && (
+          {type === "nlp" && (
             <Panel defaultSize={25} minSize={20}>
-            <div className="">
-              <h1 className="text-lg font-semibold mt-5">Enter your query</h1>
-              <TextArea size='large' className="h-52 " style={{ height: '200px' }}></TextArea>
-              <button className="mt-4 bg-blue-500 rounded text-white p-2 px-4 font-secondary font-semibold">
-                Convert To DL
-              </button>
-            </div>
+              <div className="">
+                <h1 className="text-lg font-semibold mt-5">Enter your query</h1>
+                <TextArea size='large' className="h-52 " style={{ height: '200px' }}></TextArea>
+                <button className="mt-4 bg-blue-500 rounded text-white p-2 px-4 font-secondary font-semibold">
+                  Convert To DL
+                </button>
+              </div>
             </Panel>
           )}
           {type === "text" && (

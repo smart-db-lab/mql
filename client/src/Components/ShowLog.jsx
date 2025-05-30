@@ -4,7 +4,7 @@ import AgGridTable from "../Components/AgGridTable";
 import { Collapse, Spin, Dropdown, Menu, Button } from "antd";
 import { IoIosArrowForward } from "react-icons/io";
 import Papa from "papaparse";
-import { downloadCSV, downloadGraph,downloadFile } from "../Utility/download";
+import { downloadCSV, downloadGraph, downloadFile } from "../Utility/download";
 import PerformanceTable from "./PerformanceTable";
 function ShowLog({ data = [], setData, isloding }) {
   return (
@@ -43,7 +43,7 @@ function ShowLog({ data = [], setData, isloding }) {
                     <div className="space-y-6 !w-full bg-transparent">
                       {Object.keys(val).map((v, ind) => (
                         <div key={ind}>
-                            {console.log("here table ",val[v])}
+                          {console.log("here table ", val[v])}
 
                           {/* {val[v]["text"] && (
                             <div className="font-secondary text-lg text-gray-800 font-semibold relative -top-2">
@@ -92,23 +92,26 @@ function ShowLog({ data = [], setData, isloding }) {
                             </div>
                           )} */}
                           {/* <div className="pt-5 gap-2"></div> */}
-                          {val[v]["query"]&& (
+                          {val[v]["query"] && (
                             <>
-                            <h1 className=" font-semibold">Query :</h1>
-                            <p className="bg-slate-100 p-2 font-secondary m-2">
-                            {val[v]["query"]}</p>
+                              <h1 className=" font-semibold">Query :</h1>
+                              <p className="bg-slate-100 p-2 font-secondary m-2">
+                                {val[v]["query"]}</p>
                             </>
                           )}
-                          {val[v]["text"]&& (
+                          {val[v]["text"] && (
                             <>
-                            <h1 className=" font-semibold">Log :</h1>
-                            <p className="bg-slate-100 p-2 font-secondary m-2">
-                            {val[v]["text"]}</p>
+                              <h1 className=" font-semibold">Log :</h1>
+                              {Array.isArray(val[v]["text"])
+                                ? val[v]["text"].map((item, idx) => (
+                                  <div key={idx}>{item}</div>
+                                ))
+                                : val[v]["text"]}
                             </>
                           )}
                           {val[v]["performance_table"] && (
                             <>
-                            <h1  className="font-semibold ">Performance Table :</h1>
+                              <h1 className="font-semibold ">Performance Table :</h1>
                               <PerformanceTable
                                 rowData={val[v]["performance_table"]}
                               />
@@ -117,7 +120,7 @@ function ShowLog({ data = [], setData, isloding }) {
                           <div className="pt-5 "></div>
                           {val[v]["table"] && val[v]["table"].length > 0 && (
                             <>
-                            <h1  className="font-semibold ">Data Table :</h1>
+                              <h1 className="font-semibold ">Data Table :</h1>
                               <AgGridTable rowData={val[v]["table"]} />
                               <Button
                                 type="primary"
@@ -133,9 +136,9 @@ function ShowLog({ data = [], setData, isloding }) {
                               </Button>
                             </>
                           )}
-                          {val[v]?.graph  && (
+                          {val[v]?.graph && (
                             <>
-                            {console.log(val[v]['graph_link'])}
+                              {console.log(val[v]['graph_link'])}
                               <img
                                 src={`data:image/png;base64,${val[v]['graph']}`}
                                 alt="Graph"
@@ -162,7 +165,7 @@ function ShowLog({ data = [], setData, isloding }) {
                                     <Menu.Item
                                       key="3"
                                       onClick={() =>
-                                        
+
                                         downloadFile(val[v]['graph_link'].graph_jpg, "graph.jpg")
                                       }
                                     >

@@ -1,0 +1,27 @@
+# Ignore the venv directory
+/venv/
+
+# Ignore specific folders in backend_app
+/backend_app/parser/graph/
+/backend_app/parser/table/
+/backend_app/data/files/
+
+# Ignore .env file
+.env
+/media/
+**/__pycache__/
+*.log
+*.pyc
+./__pycache__/
+.env
+.media/*
+*.svg
+*.png
+*.jpg
+*.svg
+logs.log
+**/__pycache__/
+*.py[cod]
+venv
+.pytest_cache/
+servernew/

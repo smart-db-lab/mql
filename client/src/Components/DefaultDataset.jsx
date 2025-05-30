@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Spin } from "antd";
 import toast from "react-hot-toast";
-import axios from "axios";
+import { listDatasets, setDataset } from "../services/apiServices";
 
 const DefaultDataset = () => {
   const [datasets, setDatasets] = useState([]);
@@ -14,38 +14,30 @@ const DefaultDataset = () => {
     const fetchDatasets = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:8000/api/datasets/");
-        setDatasets(res.data.datasets);
+        const res = await listDatasets();
+        setDatasets(res.datasets);
         setLoading(false);
       } catch (error) {
         setLoading(false);
-        console.error("Error fetching datasets:", error);
         toast.error("Failed to fetch datasets.");
       }
     };
     fetchDatasets();
   }, []);
 
-  const handleSelectDataset = (fileName) => {
+  const handleSelectDataset = async (fileName) => {
     setDSLoading(true);
     setLoadingDataset(fileName);
-    axios
-      .post("http://localhost:8000/api/set_datasets/", { file_name: fileName })
-      .then((response) => {
-        setSelectedDataset(fileName);
-        toast.success("Dataset selected successfully.");
-        setDSLoading(false);
-      })
-      .catch((error) => {
-        console.error("There was an error processing the file:", error);
-        toast.error("Failed to select dataset.");
-        setDSLoading(false);
-        setLoadingDataset(null);
-      })
-      .finally(() => {
-        setDSLoading(false);
-        setLoadingDataset(null);
-      });
+    try {
+      await setDataset(fileName);
+      setSelectedDataset(fileName);
+      toast.success("Dataset selected successfully.");
+    } catch (error) {
+      toast.error("Failed to select dataset.");
+    } finally {
+      setDSLoading(false);
+      setLoadingDataset(null);
+    }
   };
 
   return (
@@ -66,13 +58,13 @@ const DefaultDataset = () => {
                   key={index}
                   className="mb-2 flex justify-between border-b-2 mt-1 p-2"
                 >
-                  <span className="mr-4">{dataset}</span>
+                  <span className="mr-4">{dataset.file || dataset}</span>
                   <Button
-                    type={selectedDataset === dataset ? "default" : "default"}
-                    onClick={() => handleSelectDataset(dataset)}
+                    type={selectedDataset === (dataset.file || dataset) ? "default" : "default"}
+                    onClick={() => handleSelectDataset(dataset.file || dataset)}
                   >
-                    {loadingDataset === dataset && <Spin className="mr-3"/>}
-                    {selectedDataset === dataset ? "Selected" : "Select"}
+                    {loadingDataset === (dataset.file || dataset) && <Spin className="mr-3" />}
+                    {selectedDataset === (dataset.file || dataset) ? "Selected" : "Select"}
                   </Button>
                 </li>
               ))}

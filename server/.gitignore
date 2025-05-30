@@ -12,3 +12,14 @@
 **/__pycache__/
 *.log
 *.pyc
+./__pycache__/
+.env
+.media/*
+*.svg
+*.png
+*.jpg
+*.svg
+logs.log
+**/__pycache__/
+*.py[cod]
+venv
