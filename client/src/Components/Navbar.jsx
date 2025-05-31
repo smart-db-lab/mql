@@ -15,7 +15,7 @@ function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = Cookies.get("access_token");
     setIsLoggedIn(!!token);
   }, [location.pathname]); // Refresh state on route change
 
@@ -63,15 +63,15 @@ function Navbar() {
             {isDark ? <FaSun /> : <FaMoon />}
           </button>
           {isLoggedIn ? (
-  <DropdownUser />
-) : (
-  <Link
-    to="/signin"
-    className="hidden md:block text-white border border-blue-600 rounded-lg bg-blue-800 px-4 py-2 hover:underline font-semibold"
-  >
-    Login / Sign Up
-  </Link>
-)}
+            <DropdownUser />
+          ) : (
+            <Link
+              to="/signin"
+              className="hidden md:block text-white border border-blue-600 rounded-lg bg-blue-800 px-4 py-2 hover:underline font-semibold"
+            >
+              Login / Sign Up
+            </Link>
+          )}
 
           <button
             className="md:hidden text-2xl"

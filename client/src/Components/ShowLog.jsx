@@ -138,7 +138,7 @@ function ShowLog({ data = [], setData, isloding }) {
                           )}
                           {val[v]?.graph && (
                             <>
-                              {console.log(val[v]['graph_link'])}
+                              {/* {console.log(val[v]['graph_link'])} */}
                               <img
                                 src={`data:image/png;base64,${val[v]['graph']}`}
                                 alt="Graph"

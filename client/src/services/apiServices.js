@@ -8,7 +8,7 @@ export const setToken = (accessToken, refreshToken) => {
 };
 export const removeToken = () => {
   Cookies.remove("access_token");
-  // Cookies.remove("refresh_token");
+  Cookies.remove("refresh_token");
 };
 
 export const login = async (username, password) => {
