@@ -73,7 +73,7 @@ def process_query(request):
         print(cmd, "cmd")
 
         if cmd.strip():
-            for resp in query_process(cmd, user=user):  # Pass user for context
+            for resp in query_process(cmd, user=user):  
                 # Save response and graph if present
                 graph_file = None
                 if resp.get('graph_path'):
@@ -96,9 +96,11 @@ def process_query(request):
                             responses[f'response_{idx}'] = {
                                 "text": resp.get('text', ''),
                                 "table": resp.get('table', ''),
+                                "graph": resp.get('graph', ''),
                                 "graph_url": qr.graph_file.url if qr.graph_file else None,
                                 "graph_path": graph_path,
-                                "graph_link": resp.get('graph_link', None)
+                                "graph_link": resp.get('graph_link', None),
+                                "performance_table": resp.get("performance_table", None)
                             }
                             continue
                 # Save QueryResponse without graph
@@ -114,7 +116,9 @@ def process_query(request):
                     "graph_url": qr.graph_file.url if qr.graph_file else None,
                     "graph": resp.get('graph', ''),
                     "graph_path": qr.graph_file.path if qr.graph_file else None,
-                    "graph_link": resp.get('graph_link', None)
+                    "graph_link": resp.get('graph_link', None),
+                    "performance_table": resp.get("performance_table", None)
+
                 }
 
     return Response(responses, status=status.HTTP_200_OK)

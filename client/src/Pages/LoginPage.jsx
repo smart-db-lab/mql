@@ -45,11 +45,11 @@ const LoginPage = () => {
         <div className="w-full max-w-md bg-white text-gray-800 border border-gray-200 dark:bg-gray-800 rounded-2xl shadow-lg p-8">
           {loggedInUser ? (
             <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">
-              Welcome, {loggedInUser}! 🎉
+              Login, {loggedInUser}! 🎉
             </h2>
           ) : (
             <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">
-              Welcome Back 👋
+              Login 
             </h2>
           )}
 

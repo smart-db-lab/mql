@@ -6,10 +6,10 @@ function Home() {
       
       <div className="mt-16 max-w-3xl text-center mx-auto">
         <h1 className="font-primary dark:text-white font-black text-3xl mb-4 text-blue-950">
-          Machine Learning Using Declarative Language
+          Machine Learning Query Language
         </h1>
         <p className="font-secondary dark:text-white max-w-xl mx-auto text-gray-700 ">
-          A Database Management Tools using ML
+          Declerative Approach
         </p>
         <img src="hero.gif" alt="" className="w-[500px] mx-auto" />
       </div>

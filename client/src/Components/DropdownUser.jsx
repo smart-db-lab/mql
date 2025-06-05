@@ -4,7 +4,8 @@ import Cookies from 'js-cookie';
 import { FaUserCircle } from 'react-icons/fa';
 import apiRequest from '../Utility/api';
 import Loader from './Loader/Loader';
-
+import { removeToken, fetchWithAuth } from '../services/apiServices';
+import { toast } from 'react-hot-toast';
 const DropdownUser = () => {
     const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -22,23 +23,29 @@ const DropdownUser = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = async() => {
-    const token = Cookies.get('token');
-    const refresh = Cookies.get('refresh');
+  const handleLogout = async () => {
     setLoading(true);
-    try{
-    const response = await apiRequest(`${import.meta.env.VITE_LOGOUT_URL}`, 'POST' , token, { refresh_token:refresh });  
-    if (response.success) {
-      toast.success(response.message ||'Logout successful!');
-      Cookies.remove('token');
-      Cookies.remove('refresh');
-      navigate('/signin');
-    } 
-  }catch(error){
-    console.log(error);
-  } finally{
-    setLoading(false);
-  }
+    try {
+        const url = `${import.meta.env.VITE_BACKEND_BASE_URL}${import.meta.env.VITE_LOGOUT_URL}`;
+        const response = await fetchWithAuth(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: Cookies.get('refresh_token') }),
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+            toast.success(data.message || 'Logout successful!');
+            removeToken();
+            navigate('/signin');
+        } else {
+            toast.error(data.error || 'Logout failed!');
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+        toast.error('An error occurred during logout.');
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (

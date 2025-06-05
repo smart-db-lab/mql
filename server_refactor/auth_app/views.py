@@ -190,15 +190,18 @@ class PasswordResetConfirmView(APIView):
 from rest_framework_simplejwt.tokens import RefreshToken
 
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]  # Allow any user to call this endpoint
 
     def post(self, request):
         try:
+            print(request.data)
             refresh_token = request.data.get('refresh_token')
             if not refresh_token:
                 return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Validate and blacklist the refresh token
             token = RefreshToken(refresh_token)
-            token.blacklist()  
+            token.blacklist()
             return Response({'message': 'Logout successful.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': f'Error during logout: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

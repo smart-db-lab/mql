@@ -25,44 +25,37 @@ export const login = async (username, password) => {
 
 export const fetchWithAuth = async (url, options = {}) => {
   const token = getToken();
-  // console.log("token", token);
   const headers = {
     ...(options.headers || {}),
     Authorization: token ? `Bearer ${token}` : undefined,
   };
   const opts = { ...options, headers };
-  console.log("opts", opts);
   let res = await fetch(url, opts);
 
   if (res.status === 401) {
     const refreshToken = Cookies.get("refresh_token");
-    console.log("refreshToken", refreshToken);
     if (refreshToken) {
       const refreshRes = await fetch(`${API_BASE}${import.meta.env.VITE_REFRESH_TOKEN_URL}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refresh: refreshToken }),
       });
-      console.log("refreshRes", refreshRes);
-      if (refreshRes.status===200) {
+
+      if (refreshRes.ok) {
         const refreshData = await refreshRes.json();
-        console.log("refreshData", refreshData);
-        setToken(refreshData.access);
+        setToken(refreshData.access, refreshToken); // Update tokens
         headers.Authorization = `Bearer ${refreshData.access}`;
-        res = await fetch(url, { ...options, headers });
+        res = await fetch(url, { ...options, headers }); // Retry original request
+      } else {
+        removeToken(); // Clear tokens if refresh fails
+        window.location.href = "/signin"; // Redirect to login
+        throw new Error("Session expired. Please log in again.");
       }
-      // else {
-      //   removeToken();
-      //   Cookies.remove("refresh_token");
-      //   window.location.href = `${import.meta.env.VITE_LOGIN_URL}`;
-      //   throw new Error("Unauthorized");
-      // }
-    } 
-    // else {
-    //   removeToken();
-    //   window.location.href = `${import.meta.env.VITE_LOGIN_URL}`;
-    //   throw new Error("Unauthorized");
-    // }
+    } else {
+      removeToken(); // Clear tokens if no refresh token is available
+      window.location.href = "/signin"; // Redirect to login
+      throw new Error("Unauthorized. Please log in.");
+    }
   }
 
   return res;
@@ -94,4 +87,4 @@ export const setDataset = async (fileName) => {
     body: JSON.stringify({ file_name: fileName }),
   });
   return res.json();
-}; 
+};

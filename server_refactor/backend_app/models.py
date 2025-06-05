@@ -27,7 +27,7 @@ class MLModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     algorithm = models.CharField(max_length=64)
     table_used = models.CharField(max_length=64)
-    query = models.TextField()  # The query that generated this model
+    query = models.TextField()  
 
     def __str__(self):
         return f"{self.user.username} - {self.name}"

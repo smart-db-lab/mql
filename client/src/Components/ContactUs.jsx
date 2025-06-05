@@ -47,7 +47,7 @@ const ContactUs = () => {
                 value={formData.name}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-                placeholder="John Doe"
+                placeholder="Full name"
               />
             </div>
             <div>
@@ -59,7 +59,7 @@ const ContactUs = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-                placeholder="you@example.com"
+                placeholder="Email"
               />
             </div>
           </div>

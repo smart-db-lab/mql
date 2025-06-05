@@ -7,6 +7,7 @@ import Papa from "papaparse";
 import { downloadCSV, downloadGraph, downloadFile } from "../Utility/download";
 import PerformanceTable from "./PerformanceTable";
 function ShowLog({ data = [], setData, isloding }) {
+  const API_BASE = import.meta.env.VITE_BACKEND_URL|| "http://localhost:8000";
   return (
     <>
       <h1 className="font-secondary flex justify-between text-lg font-semibold">
@@ -136,13 +137,19 @@ function ShowLog({ data = [], setData, isloding }) {
                               </Button>
                             </>
                           )}
-                          {val[v]?.graph && (
+                          {val[v]?.['graph_link']?.graph_jpg && (
                             <>
                               {/* {console.log(val[v]['graph_link'])} */}
-                              <img
+                              {/* <img
                                 src={`data:image/png;base64,${val[v]['graph']}`}
                                 alt="Graph"
-                              />
+                              /> */}
+                              {/* {console.log(`${API_BASE}${val[v]['graph_link'].graph_jpg}`)} */}
+                                <img
+                                  src={`${API_BASE}${val[v]['graph_link'].graph_jpg}`}
+                                  alt="Graph"
+                                  className="rounded-md border border-gray-300 shadow-md max-w-full"
+                                />
                               <Dropdown
                                 overlay={
                                   <Menu>
