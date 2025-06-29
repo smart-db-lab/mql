@@ -68,21 +68,21 @@ class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.validated_data
+            user = serializer.validated_data['user'] 
+
             if not user.is_verified:
-                return Response({"error": "Email not verified.","success":True}, status=status.HTTP_400_BAD_REQUEST)
-            
+                return Response({"error": "Email not verified.", "success": True}, status=status.HTTP_400_BAD_REQUEST)
+
             refresh = RefreshToken.for_user(user)
             return Response({
-                'success':True,
+                'success': True,
                 'message': 'Login successful',
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
                 'username': user.username
             }, status=status.HTTP_200_OK)
-        print(serializer.errors)
-        return Response({'error':serializer.errors,'success':False}, status=status.HTTP_400_BAD_REQUEST)
 
+        return Response({'error': serializer.errors, 'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -187,21 +187,23 @@ class PasswordResetConfirmView(APIView):
 
 
 
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 class LogoutView(APIView):
-    permission_classes = [AllowAny]  # Allow any user to call this endpoint
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        refresh_token = request.data.get('refresh_token')
+        if not refresh_token:
+            return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            print(request.data)
-            refresh_token = request.data.get('refresh_token')
-            if not refresh_token:
-                return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Validate and blacklist the refresh token
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return Response({'message': 'Logout successful.'}, status=status.HTTP_200_OK)
+            return Response({"success":True,"message": 'Logout successful.'}, status=status.HTTP_200_OK)
+
+        except TokenError as e:
+            return Response({'error': f'Token error: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
-            return Response({'error': f'Error during logout: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': f'Unexpected error during logout: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

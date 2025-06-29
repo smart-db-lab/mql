@@ -1,3 +1,4 @@
+from urllib import request
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
@@ -29,10 +30,26 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        user = authenticate(username=data['username'], password=data['password'])
+        username = data.get('username')
+        password = data.get('password')
+
+        if not username or not password:
+            raise serializers.ValidationError("Both username and password are required.")
+
+        user = authenticate(username=username, password=password)
         if not user:
-            raise serializers.ValidationError("Invalid username or password")
-        return user
+            raise serializers.ValidationError("Invalid username or password.")
+
+        if not user.is_active:
+            raise serializers.ValidationError("User account is disabled.")
+
+        if not getattr(user, 'is_verified', True):  # If `is_verified` exists, check it.
+            raise serializers.ValidationError("Email not verified.")
+
+        data['user'] = user
+        return data
+
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

@@ -176,7 +176,7 @@ def load_saved_model(model_name,resonse):
         response["text"] = f"Model: [{model_name}] Not found."
         return None,response
 
-def generate(command):
+def generate(command,user=None):
     global model, accuracy, label_name, response
     response = {'text': [], 'graph': '', 'table': ''}
     command_parts = [part for part in command.split(" ") if part.strip()]

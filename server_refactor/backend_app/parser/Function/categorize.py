@@ -1,14 +1,14 @@
 import sqlite3
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import text
 import os
+from .utility import response_schema, db_engine
 def categorize(table_name,cmd):
     feature=cmd[cmd.index("INSPECT") + 1] 
     labels=[cat for cat in cmd[cmd.index("INTO") + 1].split(',')]
-    response = {'text': [], 'graph': '', 'table': ''}
-    connection_string = os.getenv("POSTGES_URL")
-    query = f'SELECT * FROM "{table_name}"'
-    conn = create_engine(connection_string)
+    response = response_schema()
+    query = text(f'SELECT * FROM "{table_name}"')
+    conn = db_engine()
     df=  pd.read_sql(query,conn)
     df=pd.DataFrame(df)
     min_value = df[feature].min()

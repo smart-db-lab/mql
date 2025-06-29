@@ -8,7 +8,7 @@ import psycopg2
 class CSVToDBError(Exception):
     pass
 
-def csv_to_db(csv_file, user_id=None):
+def csv_to_db(csv_file, user_id=None,csv_name=None):
     """
     Converts a CSV file to a PostgreSQL table.
     Args:
@@ -31,10 +31,10 @@ def csv_to_db(csv_file, user_id=None):
             file_name, _ = os.path.splitext(os.path.basename(csv_file))
             df = pd.read_csv(csv_file)
 
-        # Optionally, prefix table name with user_id for isolation
-        table_name = f"{user_id}_{file_name}" if user_id else file_name
-        table_name = table_name[:63]  # PostgreSQL table name limit
-
+        # table_name = f"{user_id}_{file_name}" if user_id else file_name
+        # table_name = table_name[:63]  # PostgreSQL table name limit
+        table_name = csv_name.split('.')[0]
+        print(table_name)
         engine = create_engine(connection_string)
         df.to_sql(table_name, engine, index=False, if_exists='replace')
 

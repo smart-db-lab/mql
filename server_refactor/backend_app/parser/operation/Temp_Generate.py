@@ -1,75 +1,18 @@
 import os
-import pickle
 import pandas as pd
-from sqlalchemy import create_engine
+import uuid
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score, r2_score
-from django.core.files.base import ContentFile
 from django.conf import settings
 
-from ..Function.Clustering import Clustering
+from .Clustering import clustering_generate
+
 from ..Function.display_result import display_results
 from ..Function.select_algorithm import select_algorithm
 from ..classes.load_data import load_over_df
-from ..classes.dl_algo import train_and_evaluate_auto_ml
-from ...models import MLModel
+from ..classes.dl_algo import train_and_evaluate_sklearn
 
-from pycaret.classification import setup as setup_clf, compare_models as compare_classification_models
-from pycaret.regression import setup as setup_reg, compare_models as compare_regression_models
-
-
-def get_arg(command_parts, key, default=None, offset=1):
-    try:
-        idx = [p.upper() for p in command_parts].index(key.upper())
-        return command_parts[idx + offset]
-    except (ValueError, IndexError):
-        return default
-
-
-def is_flag_present(command_parts, key):
-    return key.upper() in [p.upper() for p in command_parts]
-
-
-def parse_features(df, feature_str):
-    return df.columns.tolist() if '*' in feature_str else feature_str.split(',')
-
-
-def save_model_pickle(model, user, dataset_name, framework, command, best_pycaret_model=None):
-    if not user:
-        return None
-
-    dataset_base = os.path.splitext(os.path.basename(dataset_name))[0]
-    model_filename = f"{dataset_base}_{framework}.pkl"
-
-    if framework.lower() == "tpot" and hasattr(model, "fitted_pipeline_"):
-        model_to_save = model.fitted_pipeline_
-    elif framework.lower() == "pycaret":
-        if best_pycaret_model is None:
-            raise ValueError("For PyCaret, best_pycaret_model must be provided.")
-        model_to_save = best_pycaret_model
-    else:
-        model_to_save = model
-
-    try:
-        model_bytes = pickle.dumps(model_to_save)
-    except Exception as e:
-        raise ValueError(f"Failed to pickle model for {framework}.") from e
-
-    django_file = ContentFile(model_bytes)
-    django_file.name = model_filename
-
-    MLModel.objects.create(
-        user=user,
-        name=model_filename,
-        model_file=django_file,
-        algorithm=framework,
-        table_used=dataset_base,
-        query=command
-    )
-
-    return f"user_{user.id}/{framework}/{model_filename}"
-
+from .utils import save_model_pickle, get_connection, get_arg, is_flag_present, parse_features, parse_command_parts, get_operation_type
 
 def temp_generate(command, user=None):
     command_parts = command.strip().split()
@@ -80,7 +23,7 @@ def temp_generate(command, user=None):
 
     # Load dataset
     try:
-        conn = create_engine(os.getenv("POSTGRES_URL"))
+        conn = get_connection()
         df = pd.read_sql_query(f'SELECT * FROM "{dataset_name}"', conn)
     except Exception as e:
         response['text'] = f"Error loading dataset: {e}"
@@ -91,6 +34,9 @@ def temp_generate(command, user=None):
     features = parse_features(Over_df if Over_df is not None else df, feature_str)
     target = get_arg(command_parts, operation_type)
 
+    if operation_type.upper() == "CLUSTERING":
+        return clustering_generate(command, user)
+    
     if target in features:
         features.remove(target)
 
@@ -104,35 +50,54 @@ def temp_generate(command, user=None):
 
     # Build model set
     models = {
-        'pycaret': None,  # will be set after setup()
+        'pycaret': None, 
         'sklearn': select_algorithm(operation_type, get_arg(command_parts, "ALGORITHM", "")),
-        'tpot': select_algorithm(operation_type, "tpot"),
+        'tpot': None,
+        'autosklearn2': None,  
+        'h2o': None
     }
 
     results = {}
     y_preds = {}
     best_pycaret_model = None
+    # === Start automl section ===
+    from ..auto_ml.pycaret import pycaret
+    try:
+        results['pycaret'],y_preds['pycaret'],models['pycaret'] = pycaret(X, y, X_test, y_test, target, operation_type)
+    except Exception as e:
+        print(f"pycaret failed: {e}")
+        pass
+ 
+    try:
+        from ..auto_ml.h2o import h2o
+        results['h2o'],y_preds['h2o'],models['h2o'] = h2o(X_train, X_test, y_train, y_test, target, operation_type,features)
+    except Exception as e:
+        print(f"h2o failed: {e}")
+        pass
+   
+    # from ..auto_ml.autosklearn2 import autosklearn2
+    # results['autosklearn2'], y_preds['autosklearn2'],models['autosklearn2']  = autosklearn2(X_train, y_train, X_test, y_test, operation_type, y_preds, models)
+    
+    
+    try:
+        from ..auto_ml.tpot import tpot
+        results['tpot'], y_preds['tpot'], models['tpot'] = tpot(operation_type, X_train, y_train, X_test, y_test)
+    except Exception as e:
+        print(f"tpot failed: {e}")
+        pass
 
-    for name in models:
+
+    # === End automl section ===
+    
+
+    # sklearn
+    for name in ['sklearn']:
         try:
-            if name == "pycaret":
-                df_full = pd.concat([X, y], axis=1)
-                if operation_type.lower() == "classification":
-                    setup_clf(data=df_full, target=target, session_id=42)
-                    best_pycaret_model = compare_classification_models()
-                else:
-                    setup_reg(data=df_full, target=target, session_id=42)
-                    best_pycaret_model = compare_regression_models()
-                y_pred = best_pycaret_model.predict(X_test)
-                score = accuracy_score(y_test, y_pred) if operation_type.lower() == "classification" else r2_score(y_test, y_pred)
-                models[name] = best_pycaret_model
-            else:
-                model = models[name]
-                y_pred, score = train_and_evaluate_auto_ml(model, X_train, X_test, y_train, y_test, operation_type)
-            y_preds[name] = y_pred
-            results[name] = score
+            model = models[name]
+            y_preds[name], results[name] = train_and_evaluate_sklearn(model, X_train, X_test, y_train, y_test, operation_type)
         except Exception as e:
             print(f"{name} failed: {e}")
+
 
     if not results:
         response['text'].append("No models trained successfully.")
@@ -141,33 +106,34 @@ def temp_generate(command, user=None):
     best_framework = max(results, key=results.get)
     best_score = results[best_framework]
     best_model = models[best_framework]
-    best_pred = pd.DataFrame(y_preds[best_framework], index=y_test.index, columns=["Predicted"])
 
-    # Result Table
+    best_pred = pd.DataFrame({'Predicted': list(y_preds[best_framework])})
+
     df_result = pd.concat([X_test.reset_index(drop=True), y_test.reset_index(drop=True), best_pred.reset_index(drop=True)], axis=1)
+
     if is_flag_present(command_parts, "LABEL"):
         label = get_arg(command_parts, "LABEL")
         df_result.insert(0, label, range(1, len(df_result) + 1))
 
-    result_path = os.path.join(os.path.dirname(__file__), "../table/table_.csv")
+    table_dir = os.path.join(settings.MEDIA_ROOT, "tables")
+    os.makedirs(table_dir, exist_ok=True)
+
+    table_filename = f"table_{uuid.uuid4().hex}.csv"
+    result_path = os.path.join(table_dir, table_filename)
+
     df_result.to_csv(result_path, index=False)
-    response['table'] = df_result.to_dict(orient='records')
+    response['table'] = df_result.replace([float('inf'), float('-inf'), float('nan')], None).to_dict(orient='records')
+
     response['text'].append(f"Best Model: {best_framework} with score {best_score}")
 
     # Performance Table
     performance_table = []
     for framework, score in results.items():
-        entry = {"Framework": framework, "Score": round(score, 4)}
-        if framework == "pycaret":
-            entry["Algorithm"] = str(best_pycaret_model)
-        elif framework == "tpot":
-            try:
-                entry["Algorithm"] = str(models[framework].fitted_pipeline_.steps[0][1])
-            except Exception:
-                entry["Algorithm"] = "TPOT"
-        elif framework == "sklearn":
-            entry["Algorithm"] = str(models[framework])
+        entry = {"Framework": framework, "Score": round(score, 4)} if score is not None else {"Framework": framework, "Score": "N/A"}
+        entry["Algorithm"] = str(models[framework])
         performance_table.append(entry)
+
+    performance_table.sort(key=lambda x: (x["Score"] == "N/A", x["Score"]), reverse=True)
     response["performance_table"] = performance_table
 
     # Save best model
@@ -175,8 +141,6 @@ def temp_generate(command, user=None):
         best_model, user, dataset_name, best_framework, command,
         best_pycaret_model=best_pycaret_model if best_framework == "pycaret" else None
     )
-    # if model_path:
-        # response['text'].append(f"Model saved to {model_path}")
 
     # Optional graph
     if is_flag_present(command_parts, "DISPLAY"):

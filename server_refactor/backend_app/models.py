@@ -36,7 +36,7 @@ class QueryResponse(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     query = models.TextField()
     response_text = models.TextField()
-    response_table = models.JSONField(null=True, blank=True)
+    response_table = models.FileField(upload_to=user_media_path, null=True, blank=True)
     graph_file = models.FileField(upload_to=user_media_path, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

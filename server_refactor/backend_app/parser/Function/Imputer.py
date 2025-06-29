@@ -2,17 +2,17 @@ import os
 import sqlite3
 import pandas as pd
 from sklearn.impute import SimpleImputer
-from sqlalchemy import create_engine
-
+from sqlalchemy import create_engine,text
+from .utility import response_schema,db_engine
 def impute(command):
     response = {'text': []}
     command_parts = [part for part in command.split(" ") if part.strip()]
     table_name = command_parts[command_parts.index("FROM") + 1].split(';')[0]
     features = command_parts[command_parts.index("IMPUTE") + 1]
     strat = command_parts[command_parts.index("STRATEGY") + 1] if "STRATEGY" in command_parts else "mean"
-    connection_string = os.getenv("POSTGES_URL")
-    query = f'SELECT * FROM "{table_name}"'
-    conn = create_engine(connection_string)
+    query = text(f'SELECT * FROM "{table_name}"')
+    print(query)
+    conn = db_engine()
     data = pd.read_sql_query(query, conn)
     numerical_cols = data.select_dtypes(include=['number']).columns
     categorical_cols = data.select_dtypes(include=['object']).columns

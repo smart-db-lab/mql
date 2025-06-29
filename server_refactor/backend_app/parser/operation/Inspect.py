@@ -25,10 +25,10 @@ def inspect(command):
           
     except:
         pass
-    response=[]
+    response = {'text': [], 'graph': '', 'table': '', 'query': command}
     # url = os.path.join(os.path.dirname(__file__), f"../../data/files/{dataset_name}.db")
     if operation_type.upper()=="CHECKNULL":
-        response['text'].append(checknull(dataset_name))
+        response = checknull(dataset_name)
         return response
     elif operation_type.upper() =="ENCODING":
         res=encoding(dataset_name,command_parts)

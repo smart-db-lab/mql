@@ -33,9 +33,18 @@ def display_results(operation_type, y_test=None, y_pred=None, model=None, featur
         if len(features) >= 2:
             plt.figure(figsize=(10, 6))
             sns.scatterplot(data=pd.DataFrame(df), x=features[0], y=features[1], hue='Class', palette='viridis')
-            plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1],c='red', label='Centroids')
+            
+            if hasattr(model, 'cluster_centers_'):
+                plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1], 
+                          c='red', s=100, marker='x', label='Centroids', linewidths=3)
+            
             plt.title('Clustering Results')
             plt.legend(title="Cluster")
+        else:
+            plt.figure(figsize=(10, 6))
+            plt.text(0.5, 0.5, 'Need at least 2 features for clustering visualization', 
+                    ha='center', va='center', transform=plt.gca().transAxes)
+            plt.title('Clustering Results')
 
     formats = ["png", "svg", "jpg"]
     response = {}

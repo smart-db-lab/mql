@@ -1,11 +1,14 @@
 import Cookies from "js-cookie";
 
 const API_BASE = import.meta.env.VITE_BACKEND_BASE_URL;
+
 export const getToken = () => Cookies.get("access_token");
+export const getRefreshToken = () => Cookies.get("refresh_token");
 export const setToken = (accessToken, refreshToken) => {
   Cookies.set("access_token", accessToken);
   Cookies.set("refresh_token", refreshToken);
 };
+
 export const removeToken = () => {
   Cookies.remove("access_token");
   Cookies.remove("refresh_token");

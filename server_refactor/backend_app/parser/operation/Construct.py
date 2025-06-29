@@ -24,7 +24,7 @@ from tpot import TPOTRegressor, TPOTClassifier
 from ..Function.select_algorithm import select_algorithm
 
 
-def construct(command):
+def construct(command,user=None):
     command_parts = [part for part in command.split(" ") if part.strip()]
     command_parts_upper = [part.upper() for part in command_parts]  # Convert command parts to uppercase
 

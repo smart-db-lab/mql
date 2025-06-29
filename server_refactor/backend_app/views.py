@@ -14,7 +14,7 @@ from .models import UploadedFile, MLModel, QueryResponse
 from .parser.query_process import query_process
 from .parser.Function.csvToDB import csv_to_db
 from .parser.Function.rearrange_query import rearrange_query
-
+from django.core.files.base import ContentFile
 
 @csrf_exempt
 @api_view(['POST'])
@@ -33,7 +33,7 @@ def upload_file(request):
 
     if file_type == 'csv':
         try:
-            table_name = csv_to_db(uploaded.file, user_id=user.id)
+            table_name = csv_to_db(uploaded.file, user_id=user.id,csv_name= file.name)
             uploaded.table_name = table_name
             uploaded.save()
         except Exception as e:
@@ -76,7 +76,7 @@ def process_query(request):
             for resp in query_process(cmd, user=user):  
                 # Save response and graph if present
                 graph_file = None
-                if resp.get('graph_path'):
+                if isinstance(resp,dict) and  resp.get('graph_path',None):
                     print(resp['graph_path'], "graph_path")
                     graph_path = resp['graph_path']
                     if os.path.exists(graph_path):
@@ -85,7 +85,7 @@ def process_query(request):
                         with open(graph_path, 'rb') as f:
                             graph_file = File(f)
                             graph_name = os.path.basename(graph_path)
-                            # Save QueryResponse with graph
+                            print("graph condition before ")
                             qr = QueryResponse.objects.create(
                                 user=user,
                                 query=cmd,
@@ -93,6 +93,7 @@ def process_query(request):
                                 response_table=resp.get('table', None),
                                 graph_file=graph_file
                             )
+                            print("graph condition afte")
                             responses[f'response_{idx}'] = {
                                 "text": resp.get('text', ''),
                                 "table": resp.get('table', ''),
@@ -103,13 +104,34 @@ def process_query(request):
                                 "performance_table": resp.get("performance_table", None)
                             }
                             continue
-                # Save QueryResponse without graph
                 qr = QueryResponse.objects.create(
                     user=user,
                     query=cmd,
-                    response_text=json.dumps(resp.get('text', '')),
-                    response_table=resp.get('table', None)
+                    response_text=json.dumps(resp.get('text', ''))
                 )
+                
+                table_data = resp.get('table', None)
+                if table_data and isinstance(table_data, list):
+                    import pandas as pd
+                    df = pd.DataFrame(table_data)
+                    print("df ok", df)
+                    df = df.replace([float('inf'), float('-inf'), float('nan')], None)
+                    csv_content = df.to_csv(index=False, header=True) 
+                    resp['table'] = df.to_dict(orient='records')
+                    print("csv_content")
+                    filename = f"user_{user.id}_response_{qr.id}_table.csv"
+                    qr.response_table.save(filename, ContentFile(csv_content))
+                    print("csv_content saved")
+                    qr.save()
+                    
+                graphdata = resp.get('graph', '')
+                graph_path = resp.get('graph_path', None)
+                if graph_path and os.path.exists(graph_path):
+                    with open(graph_path, 'rb') as f:
+                        qr.graph_file.save(os.path.basename(graph_path), File(f))
+                        qr.save()
+                
+
                 responses[f'response_{idx}'] = {
                     "text": resp.get('text', ''),
                     "table": resp.get('table', ''),
@@ -118,7 +140,6 @@ def process_query(request):
                     "graph_path": qr.graph_file.path if qr.graph_file else None,
                     "graph_link": resp.get('graph_link', None),
                     "performance_table": resp.get("performance_table", None)
-
                 }
 
     return Response(responses, status=status.HTTP_200_OK)

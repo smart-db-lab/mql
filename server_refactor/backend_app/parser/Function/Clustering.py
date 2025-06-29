@@ -20,7 +20,7 @@ def Clustering(command_parts,operation_type,algorithm_name,features,response,X):
     cluster_df['Class'] = labels.tolist()
     cluster_df = pd.DataFrame(cluster_df)
     response['table'] = cluster_df.to_dict(orient='records')
-    url = os.path.join(os.path.dirname(__file__), f"../table/table_.csv")
+    url = os.path.join(os.path.dirname(__file__), f"../table/cluster_table_.csv")
     cluster_df.to_csv(url, index=False)
 
     return response,model,labels,cluster_df

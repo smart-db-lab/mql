@@ -8,6 +8,7 @@ from .operation.Inspect import inspect
 from .operation.Construct import construct
 from .operation.Drop_dataset import drop_dataset
 from .operation.Temp_Generate import temp_generate
+from .operation.Clustering import clustering_generate
 from .Function.Imputer import impute
 
 def query_process(query,user=None):
@@ -17,6 +18,10 @@ def query_process(query,user=None):
         dict: response from the handler
     """
     query_upper = query.strip().upper()
+
+    if query_upper.startswith("GENERATE") and "CLUSTERING" in query_upper:
+        yield clustering_generate(query, user)
+        return
 
     dispatch_map = [
         ("SHOW", show_db),

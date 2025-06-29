@@ -44,13 +44,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt.token_blacklist',
     'backend_app',
     'corsheaders',
     'auth_app',
     'rest_framework',
-    'rest_framework_simplejwt.token_blacklist',
-
 ]
+
+SIMPLEJWT = {
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_BLACKLIST_ENABLED": True,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -64,10 +70,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "*"
+# ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'dl4ml.urls'
 
 TEMPLATES = [
