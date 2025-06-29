@@ -8,3 +8,6 @@ logs.log
 servernew/
 **/.DS_Store
 **/__pycache__
+.env
+*.ipynb
+.pytest_cache/

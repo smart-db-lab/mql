@@ -1,0 +1,50 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}        # Optional, defaults to 'postgres'
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Required for PostgreSQL
+      POSTGRES_DB: ${POSTGRES_DB}            # Optional, defaults to 'postgres'
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mysql:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Required for MySQL
+      MYSQL_DATABASE: ${MYSQL_DATABASE}          # Optional, defaults to no database
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./server_refactor
+    env_file:
+      - ./server_refactor/.env # Use server_refactor's .env file
+    volumes:
+      - ./server_refactor/media:/app/media
+      - ./server_refactor/datasets:/app/datasets
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - mysql
+
+  frontend:
+    build:
+      context: ./client
+    env_file:
+      - ./client/.env.local
+    ports:
+      - "5173:80"
+
+volumes:
+  postgres_data:
+  mysql_data:
