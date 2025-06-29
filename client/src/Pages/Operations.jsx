@@ -11,7 +11,7 @@ import ShowLog from "../Components/ShowLog";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import CustomMonacoEditor from "../Components/CustomMonacoEditor";
 import DefaultDataset from "../Components/DefaultDataset";
-import { processQuery } from "../services/apiServices";
+import { processQuery,uploadFile } from "../services/apiServices";
 
 function Operations() {
   const [type, setType] = useState("text");
@@ -70,6 +70,25 @@ function Operations() {
     }
   };
 
+  const handleUploadFile =   async () => {
+    if (fileList.length > 0 && fileList[0].originFileObj) {
+    const formData = new FormData();
+    formData.append("file", fileList[0].originFileObj);
+    try {
+      const response = await uploadFile(formData);
+      if (response.status === 201) {
+        toast.success("File uploaded successfully boom");
+      } else {
+        toast.error("Failed to upload file");
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error("Error uploading file ");
+    }
+    } else {
+    toast.error("No file selected for upload");
+    }
+  };
   return (
     <div className={`max-w-7xl mt-3 mx-auto`}>
       <Toaster />
@@ -176,6 +195,11 @@ function Operations() {
                       <Button icon={<UploadOutlined />}>Upload File</Button>
                     )}
                   </Upload>
+                  {fileList.length > 0 && (
+                    <Button onClick={handleUploadFile} icon ={<UploadOutlined />}>
+                      {`Upload ${fileList[0].name}`}
+                    </Button>
+                  )}
                   <button
                     onClick={() => setDrawerVisible(true)}
                     className="mt-4 w-28 text-sm border-slate-400 border rounded-lg text-black p-1  shadow-lg  hover:bg-slate-100 hover:shadow-lg"

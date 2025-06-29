@@ -4,6 +4,7 @@ import { FiEye, FiEyeOff } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import Loader from '../Components/Loader/Loader';
 import { login, setToken } from '../services/apiServices';
+import apiRequest from '../utility/api';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -13,18 +14,28 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState(null); // State to store logged-in user
+  const [loggedInUser, setLoggedInUser] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await login(username, password);
-      setToken(response.access);
-      setLoggedInUser(username); // Set the logged-in user
-      toast.success('Login successful!');
-      navigate('/mql');
+      const response = await apiRequest (
+        `${import.meta.env.VITE_LOGIN_URL}`,
+        'POST',
+        null,
+        { username, password }
+      );
+      if (response.success) {
+        toast.success('Login successful!');
+        setToken(response.access, response.refresh);
+        navigate('/dashboard');
+      }
+      setLoggedInUser(
+        response.username
+      )
     } catch (error) {
+      console.log(error)
       const message =
         error?.non_field_errors?.[0] ||
         error?.error?.non_field_errors?.[0] ||
@@ -41,7 +52,7 @@ const LoginPage = () => {
     <>
       {loading && <Loader />}
 
-      <div className="min-h-[80vh] flex items-center justify-center px-4">
+      <div className="min-h-[80vh] flex items-center justify-center px-4 mt-5">
         <div className="w-full max-w-md bg-white text-gray-800 border border-gray-200 dark:bg-gray-800 rounded-2xl shadow-lg p-8">
           {loggedInUser ? (
             <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">

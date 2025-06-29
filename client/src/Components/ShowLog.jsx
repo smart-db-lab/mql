@@ -4,7 +4,7 @@ import AgGridTable from "../Components/AgGridTable";
 import { Collapse, Spin, Dropdown, Menu, Button } from "antd";
 import { IoIosArrowForward } from "react-icons/io";
 import Papa from "papaparse";
-import { downloadCSV, downloadGraph, downloadFile } from "../Utility/download";
+import { downloadCSV, downloadGraph, downloadFile } from "../utility/download";
 import PerformanceTable from "./PerformanceTable";
 function ShowLog({ data = [], setData, isloding }) {
   const API_BASE = import.meta.env.VITE_BACKEND_URL|| "http://localhost:8000";

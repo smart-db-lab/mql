@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import apiRequest from '../Utility/api';
+import apiRequest from '../utility/api';
 import Loader from '../Components/Loader/Loader';
 
 const SignupPage = () => {
@@ -60,7 +60,7 @@ const SignupPage = () => {
     <>
       {loading && <Loader />}
 
-      <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4 mt-5">
         <div className="w-full max-w-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
           <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">
             Create Account
@@ -92,7 +92,7 @@ const SignupPage = () => {
                 type="email"
                 name="email"
                 required
-                placeholder="you@example.com"
+                placeholder="Email Address"
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
