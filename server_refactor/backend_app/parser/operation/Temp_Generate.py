@@ -102,8 +102,12 @@ def temp_generate(command, user=None):
     if not results:
         response['text'].append("No models trained successfully.")
         return response
-
-    best_framework = max(results, key=results.get)
+    print(f"Results: {results}")
+    valid_results = {k: v for k, v in results.items() if isinstance(v, (int, float)) and v is not None}
+    if not valid_results:
+        response['text'].append("No valid model scores available.")
+        return response
+    best_framework = max(valid_results, key=valid_results.get)
     best_score = results[best_framework]
     best_model = models[best_framework]
 
