@@ -7,7 +7,10 @@ def encoding(table_name, cmd):
     ''' INSPECT ENCODING USING ONE-HOT feature medv from boston '''
     query = f'SELECT * FROM "{table_name}"'
     conn = db_engine()
-    data = pd.read_sql_query(query, conn)
+    try:
+        data = pd.read_sql_query(query, conn)
+    except Exception as e:
+        return {'text': [f"Error reading data from table {table_name}: {e}"]}
     features = cmd[cmd.index("INSPECT") + 1]
     method = cmd[cmd.index("METHOD")+ 1] if "METHOD" in cmd else "Ordinal"
     print(method)

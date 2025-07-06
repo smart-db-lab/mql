@@ -59,6 +59,7 @@ def impute(table_name,command_parts):
             response['text'].append(f"{features} not exists in {table_name}")
             return response
     data.to_sql(table_name, conn, if_exists='replace', index=False)
+    
     if flag:
         response['text'].append("Imputation complete")
     return response

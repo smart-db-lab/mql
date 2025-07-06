@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 import "regenerator-runtime/runtime";
 import { Toaster } from "react-hot-toast";
 
@@ -14,9 +14,9 @@ import ContactUs from "./Components/ContactUs";
 import ForgotPassword from "./Pages/ForgotPassword";
 import PrivateRoute from "./utility/PrivateRoute";
 
-
-
 function App() {
+  const location = useLocation();
+
   return (
     <div className="p-6 px-8 dark:bg-gray-900 min-h-screen flex flex-col">
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
@@ -42,7 +42,7 @@ function App() {
         </Routes>
       </main>
 
-      <Footer />
+      {location.pathname !== "/mql/operation" && <Footer />}
     </div>
   );
 }

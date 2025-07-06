@@ -3,7 +3,11 @@ import psycopg2
 from sqlalchemy import create_engine, text
 
 def db_engine():
-    conn = create_engine(os.getenv("POSTGRES_URL"))
+    try:
+        conn = create_engine(os.getenv("POSTGRES_URL"))
+    except Exception as e:
+        print(f"Error creating database engine: {e}")
+        raise Exception(f"Database connection failed.{e}")
     print(conn, "connection engine")
     return conn
 
