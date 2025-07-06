@@ -1,16 +1,13 @@
-import os
-import sqlite3
-import pandas as pd
-from sqlalchemy import create_engine
 
+import pandas as pd
+from .utility import db_engine
 def deduplicate(command):
     response = {'text': ""}
     command_parts = command
     table_name = command_parts[command_parts.index("FROM") + 1].split(';')[0]
     feature = command_parts[command_parts.index("INSPECT") + 1]
-    connection_string = os.getenv("POSTGES_URL")
     query = f'SELECT * FROM "{table_name}"'
-    conn = create_engine(connection_string)
+    conn = db_engine()
     data = pd.read_sql_query(query, conn)
 
     if feature!='*':

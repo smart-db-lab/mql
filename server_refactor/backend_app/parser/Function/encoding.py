@@ -1,13 +1,10 @@
-import sqlite3,os
+import os
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, LabelEncoder
-from sqlalchemy import create_engine
 from .utility import db_engine
 
 def encoding(table_name, cmd):
     ''' INSPECT ENCODING USING ONE-HOT feature medv from boston '''
-    # conn = sqlite3.connect(url)
-    connection_string = os.getenv("POSTGES_URL")
     query = f'SELECT * FROM "{table_name}"'
     conn = db_engine()
     data = pd.read_sql_query(query, conn)
