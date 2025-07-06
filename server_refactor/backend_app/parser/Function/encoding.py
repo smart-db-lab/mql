@@ -2,13 +2,14 @@ import sqlite3,os
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, LabelEncoder
 from sqlalchemy import create_engine
+from .utility import db_engine
 
 def encoding(table_name, cmd):
     ''' INSPECT ENCODING USING ONE-HOT feature medv from boston '''
     # conn = sqlite3.connect(url)
     connection_string = os.getenv("POSTGES_URL")
     query = f'SELECT * FROM "{table_name}"'
-    conn = create_engine(connection_string)
+    conn = db_engine()
     data = pd.read_sql_query(query, conn)
     features = cmd[cmd.index("INSPECT") + 1]
     method = cmd[cmd.index("METHOD")+ 1] if "METHOD" in cmd else "Ordinal"
