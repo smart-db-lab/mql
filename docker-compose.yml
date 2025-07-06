@@ -4,9 +4,9 @@ services:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}        # Optional, defaults to 'postgres'
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Required for PostgreSQL
-      POSTGRES_DB: ${POSTGRES_DB}            # Optional, defaults to 'postgres'
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -16,8 +16,8 @@ services:
     image: mysql:8
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Required for MySQL
-      MYSQL_DATABASE: ${MYSQL_DATABASE}          # Optional, defaults to no database
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - "3306:3306"
     volumes:
@@ -27,7 +27,7 @@ services:
     build:
       context: ./server_refactor
     env_file:
-      - ./server_refactor/.env # Use server_refactor's .env file
+      - ./server_refactor/.env.docker 
     volumes:
       - ./server_refactor/media:/app/media
       - ./server_refactor/datasets:/app/datasets
@@ -40,8 +40,13 @@ services:
   frontend:
     build:
       context: ./client
-    env_file:
-      - ./client/.env.local
+      args:
+        VITE_BACKEND_BASE_URL: http://localhost:8000/api  
+        VITE_BACKEND_URL: http://localhost:8000/
+        VITE_SIGNUP_URL: /auth/register/
+        VITE_LOGIN_URL: /auth/login/
+        VITE_REFRESH_TOKEN_URL: /auth/token/refresh/
+        VITE_LOGOUT_URL: /auth/logout/
     ports:
       - "5173:80"
 
