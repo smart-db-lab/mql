@@ -32,7 +32,10 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(username=data['username'], password=data['password'])
         if not user:
             raise serializers.ValidationError("Invalid username or password")
-        return user
+        data['user'] = user
+        return data
+
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

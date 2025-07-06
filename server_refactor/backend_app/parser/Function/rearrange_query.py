@@ -21,7 +21,7 @@ def find_earliest_position(query, operation_types, start_pos):
 
 def rearrange_query(query):
     clean_text(query)
-    print(query)
+    print("query after rearranging.." ,query)
 
     # Split the query into parts based on "WHERE" and "BASED ON"
     # parts = query.split(" WHERE ")

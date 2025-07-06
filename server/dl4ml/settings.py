@@ -44,12 +44,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt.token_blacklist',
     'backend_app',
     'corsheaders',
     'auth_app',
 
 
 ]
+
+SIMPLEJWT = {
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_BLACKLIST_ENABLED": True,
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

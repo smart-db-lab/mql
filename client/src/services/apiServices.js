@@ -27,6 +27,7 @@ export const login = async (username, password) => {
 };
 
 export const fetchWithAuth = async (url, options = {}) => {
+  console.log("Fetching URL:", url, "with options:", options);
   const token = getToken();
   const headers = {
     ...(options.headers || {}),

@@ -2,7 +2,8 @@ import os
 import pandas as pd
 import uuid
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.compose import ColumnTransformer
 from django.conf import settings
 
 from .Clustering import clustering_generate
@@ -45,6 +46,31 @@ def temp_generate(command, user=None):
         y = pd.Series(LabelEncoder().fit_transform(y), name=target)
 
     X = df[features]
+    
+    # Encode categorical features for classification
+    if operation_type.upper() == "CLASSIFICATION":
+        # Identify categorical columns
+        categorical_columns = X.select_dtypes(include=['object', 'category']).columns.tolist()
+        
+        if categorical_columns:
+            # Use OneHotEncoder for categorical features
+            preprocessor = ColumnTransformer(
+                transformers=[
+                    ('cat', OneHotEncoder(drop='first', sparse_output=False), categorical_columns),
+                    ('num', 'passthrough', [col for col in X.columns if col not in categorical_columns])
+                ],
+                remainder='passthrough'
+            )
+            print(f"Categorical Feature found ! Encoding categorical features: {categorical_columns}")
+            X_encoded = preprocessor.fit_transform(X)
+            
+            # Get feature names after encoding
+            cat_feature_names = preprocessor.named_transformers_['cat'].get_feature_names_out(categorical_columns)
+            num_feature_names = [col for col in X.columns if col not in categorical_columns]
+            features = list(cat_feature_names) + list(num_feature_names)
+            
+            X = pd.DataFrame(X_encoded, columns=features, index=X.index)
+    
     test_size = float(get_arg(command_parts, "TEST", 20, offset=2)) / 100
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
 
@@ -94,9 +120,12 @@ def temp_generate(command, user=None):
     for name in ['sklearn']:
         try:
             model = models[name]
+            # print(f"Training {name} model...",y)
             y_preds[name], results[name] = train_and_evaluate_sklearn(model, X_train, X_test, y_train, y_test, operation_type)
+            # print(f"{name} trained successfully with score: {results[name]}")
         except Exception as e:
             print(f"{name} failed: {e}")
+            response['text'].append(f"Error training {name} model: {e}")
 
 
     if not results:

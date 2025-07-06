@@ -4,11 +4,12 @@ import pandas as pd
 from sklearn.impute import SimpleImputer
 from sqlalchemy import create_engine,text
 from .utility import response_schema,db_engine
-def impute(command):
+def impute(table_name,command_parts):
+    """Impute missing values in a dataset based on the provided command. """
     response = {'text': []}
-    command_parts = [part for part in command.split(" ") if part.strip()]
-    table_name = command_parts[command_parts.index("FROM") + 1].split(';')[0]
-    features = command_parts[command_parts.index("IMPUTE") + 1]
+    # command_parts = [part for part in command.split(" ") if part.strip()]
+    # table_name = command_parts[command_parts.index("FROM") + 1].split(';')[0]
+    features = command_parts[command_parts.index("IMPUTE") - 1]
     strat = command_parts[command_parts.index("STRATEGY") + 1] if "STRATEGY" in command_parts else "mean"
     query = text(f'SELECT * FROM "{table_name}"')
     print(query)

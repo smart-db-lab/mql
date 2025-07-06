@@ -28,7 +28,7 @@ def query_process(query,user=None):
         ("CONSTRUCT", construct),
         ("GENERATE", lambda q: generate(q,user) if " BEST ALGORITHM " in q.upper() else temp_generate(q,user)),
         ("INSPECT", inspect),
-        ("IMPUTE", impute),
+        # ("IMPUTE", impute),
         ("DROP", drop_dataset),
     ]
 

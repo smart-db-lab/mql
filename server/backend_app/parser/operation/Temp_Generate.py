@@ -128,7 +128,9 @@ def temp_generate(command):
     X = df[features]
     
     if operation_type.upper() == "CLUSTERING":
+        print("clustering started")
         response, model, y_pred_df, df = Clustering(command_parts, operation_type, algorithm_name, features, response, X)
+        print("clustering ended")
     elif y is not None and operation_type.upper() != "CLUSTERING":
         test_s = float(command_parts[[part.upper() for part in command_parts].index("TEST") + 2]) if "TEST" in [part.upper() for part in command_parts] else 20
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_s/100, random_state=42)

@@ -2,6 +2,7 @@ import os
 import sqlite3
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, LabelEncoder
 from sqlalchemy import create_engine
+from ..Function.utility import db_engine
 def drop_dataset(command):
     """
     DROP DATASET dataset_name;
@@ -12,18 +13,15 @@ def drop_dataset(command):
         if command_parts[0].upper() == "DROP" and command_parts[1].upper() == "DATASET":
             dataset_name = command_parts[2].split(';')[0]
             dataset_path = os.path.join(os.path.dirname(__file__), f"../../data/files/{dataset_name}.db")
-            
-            connection_string = os.getenv("POSTGES_URL")
-            conn = create_engine(connection_string).raw_connection()
+            conn = db_engine()
             cursor = conn.cursor()
 
             tables = [dataset_name]
             
-            # Drop all tables
             for table_name in tables:
                 try:
                     cursor.execute(f"DROP TABLE IF EXISTS \"{table_name}\";")
-                    conn.commit()  # Explicitly commit after each DROP TABLE
+                    conn.commit()  
                 except Exception as drop_error:
                     print(f"Failed to drop table {table_name}: {str(drop_error)}")
             conn.commit()

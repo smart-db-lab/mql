@@ -7,6 +7,7 @@ from ..Function.categorize import categorize
 from ..Function.deduplicate import deduplicate
 from ..Function.encoding import encoding
 from ..Function.checknull import checknull
+from ..Function.Imputer import impute
 
 
 def inspect(command):
@@ -18,7 +19,7 @@ def inspect(command):
     command_parts = [part for part in command.split(" ") if part.strip()]
     print(command_parts)
     try:
-        operation_types = ["CHECKNULL", "ENCODING","DEDUPLICATE","CATEGORIZE"]
+        operation_types = ["CHECKNULL", "ENCODING","DEDUPLICATE","CATEGORIZE", "IMPUTE"]
         operation_type = next((word for word in operation_types if word in command), "") 
         dataset_name = command_parts[command_parts.index("FROM") + 1].split(';')[0]
         features=command_parts[command_parts.index("INSPECT") + 1] #.split(',')
@@ -49,7 +50,13 @@ def inspect(command):
             return res
         else:
             response['text'].append("Something wrong. try again")
-
+    elif operation_type.upper() == "IMPUTE":
+        res = impute(dataset_name, command_parts)
+        if res:
+            return res
+        else:
+            response['text'].append("Something wrong. try again")
+            return response
     # conn = sqlite3.connect(url)
     # query = f"SELECT * FROM {dataset_name}"
     # df = pd.read_sql_query(query, conn)

@@ -4,7 +4,7 @@ import AgGridTable from "../Components/AgGridTable";
 import { Collapse, Spin, Dropdown, Menu, Button } from "antd";
 import { IoIosArrowForward } from "react-icons/io";
 import Papa from "papaparse";
-import { downloadCSV, downloadGraph, downloadFile } from "../utility/download";
+import { downloadCSV, downloadGraph, downloadFile, downloadPDF } from "../utility/download";
 import PerformanceTable from "./PerformanceTable";
 function ShowLog({ data = [], setData, isloding }) {
   const API_BASE = import.meta.env.VITE_BACKEND_URL|| "http://localhost:8000";
@@ -37,11 +37,24 @@ function ShowLog({ data = [], setData, isloding }) {
                 {
                   key,
                   label: (
-                    <p className="font-medium text-lg">Output - {key + 1}</p>
+                    <div className="flex justify-between items-center">
+                      <p className="font-medium text-lg">Output - {key + 1}</p>
+                      <Button
+                        type="primary"
+                        size="small"
+                        className="ml-2 bg-slate-400 hover:bg-slate-600 border-slate-300"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadPDF(`output-${key}`, `output-${key + 1}-report.pdf`, val);
+                        }}
+                      >
+                        📄 Download PDF
+                      </Button>
+                    </div>
                   ),
                   className: "w-full",
                   children: (
-                    <div className="space-y-6 !w-full bg-transparent">
+                    <div id={`output-${key}`} className="space-y-6 !w-full bg-transparent">
                       {Object.keys(val).map((v, ind) => (
                         <div key={ind}>
                           {console.log("here table ", val[v])}

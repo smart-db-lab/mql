@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-
+import { getToken,setToken,removeToken,getRefreshToken } from '../services/apiServices';
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_BASE_URL,
   headers: {
@@ -10,7 +10,7 @@ const api = axios.create({
 
 const refreshAccessToken = async () => {
   try {
-    const refreshToken = Cookies.get('refresh');
+    const refreshToken = getRefreshToken();
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
@@ -18,8 +18,11 @@ const refreshAccessToken = async () => {
     const response = await api.post('/auth/token/refresh/', {
       refresh: refreshToken,
     });
-
-    Cookies.set('token', response.data.access);
+    if (!response.data || !response.data.access) {
+      throw new Error('Invalid response from token refresh endpoint');
+    }
+    setToken(response.data.access, refreshToken);
+    // Cookies.set('access_token', response.data.access);
     return response.data.access;
   } catch (error) {
     console.error('Error refreshing token:', error.response?.data || error.message);
@@ -29,6 +32,7 @@ const refreshAccessToken = async () => {
 
 const apiRequest = async (endpoint, method, token = null, data = null, params = null) => {
   try {
+    console.log(`API Request: ${method.toUpperCase()} ${endpoint}`, { token, data, params });
     const config = {
       url: endpoint,
       method: method.toUpperCase(),
@@ -58,8 +62,7 @@ const apiRequest = async (endpoint, method, token = null, data = null, params = 
         const newAccessToken = await refreshAccessToken();
         return await apiRequest(endpoint, method, newAccessToken, data, params);
       } catch (refreshError) {
-        Cookies.remove('token');
-        Cookies.remove('refresh');
+        removeToken();
         window.location.href = `${import.meta.env.VITE_BASE_PATH}signin`;
         throw refreshError;
       }
