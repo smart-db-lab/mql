@@ -11,3 +11,4 @@ servernew/
 .env
 *.ipynb
 .pytest_cache/
+server_old/

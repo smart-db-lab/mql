@@ -25,14 +25,16 @@ def impute(table_name,command_parts):
                 numerical_imputer = SimpleImputer(strategy=strat.lower())
                 data[numerical_cols] = numerical_imputer.fit_transform(data[numerical_cols])
                 flag=1
-            except Exception as e:
-                response['text'].append( f"Error occurred: {e}")
-            try:
+            # except Exception as e:
+            #     # response['text'].append( f"Error occurred: {e}")
+            # try:
                 categorical_imputer = SimpleImputer(strategy=strat.lower())
                 data[categorical_cols] = categorical_imputer.fit_transform(data[categorical_cols])
                 flag=1
             except Exception as e:
-                response['text'].append(f"Error occurred: {e}")
+                print(f"Error occurred: {e}")
+                pass
+                # response['text'].append(f"Error occurred: {e}")
         else:
             response['text'].append("No missing values to impute.")
             return response
@@ -50,7 +52,7 @@ def impute(table_name,command_parts):
         elif features in categorical_cols:
             if data[features].isnull().any():
                 categorical_imputer = SimpleImputer(strategy=strat.lower())
-                data[features] = categorical_imputer.fit_transform(data[[features]])
+                data[features] = categorical_imputer.fit_transform(data[[features]]).ravel()
                 flag=1
             else:
                 response['text'].append(f"No missing values in {features}.")

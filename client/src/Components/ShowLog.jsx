@@ -125,7 +125,7 @@ function ShowLog({ data = [], setData, isloding }) {
                           )}
                           {val[v]["performance_table"] && (
                             <>
-                              <h1 className="font-semibold ">Performance Table :</h1>
+                              <h1 className="font-semibold ">AutoML Evaluation :</h1>
                               <PerformanceTable
                                 rowData={val[v]["performance_table"]}
                               />

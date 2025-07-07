@@ -79,7 +79,7 @@ export const downloadPDF = async (elementId, fileName, outputData) => {
 
     // Add title
     pdf.setFontSize(16);
-    pdf.text('ML Output Report', 20, yPosition);
+    pdf.text('MQL Output Report', 20, yPosition);
     yPosition += 15;
 
     // Handle the case where outputData is the full val object with multiple keys
@@ -102,7 +102,7 @@ export const downloadPDF = async (elementId, fileName, outputData) => {
           yPosition = 20;
         }
         pdf.setFontSize(14);
-        pdf.text(`Section ${i + 1}`, 20, yPosition);
+        pdf.text(`MQL Evaluation ${i + 1}`, 20, yPosition);
         yPosition += 10;
       }
 
@@ -154,7 +154,7 @@ export const downloadPDF = async (elementId, fileName, outputData) => {
         }
         
         pdf.setFontSize(12);
-        pdf.text('Performance Table:', 20, yPosition);
+        pdf.text('AutoML Evaluation:', 20, yPosition);
         yPosition += 10;
         
         pdf.setFontSize(10);
@@ -207,7 +207,7 @@ export const downloadPDF = async (elementId, fileName, outputData) => {
           }
 
           pdf.setFontSize(12);
-          pdf.text('Graph:', 20, yPosition);
+          pdf.text('Graph for best model:', 20, yPosition);
           yPosition += 10;
           
           // Create a canvas to load and convert the image

@@ -157,7 +157,7 @@ def temp_generate(command, user=None):
     df_result.to_csv(result_path, index=False)
     response['table'] = df_result.replace([float('inf'), float('-inf'), float('nan')], None).to_dict(orient='records')
 
-    response['text'].append(f"Best Model: {best_framework} with score {best_score}")
+    response['text'].append(f"Best Model: {best_framework} with score {best_score:.4f}")
 
     # Performance Table
     performance_table = []
