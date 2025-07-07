@@ -12,3 +12,4 @@ servernew/
 *.ipynb
 .pytest_cache/
 server_old/
+*.csv
