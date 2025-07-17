@@ -30,6 +30,21 @@ def temp_generate(command, user=None):
         response['text'] = f"Error loading dataset: {e}"
         return response
 
+    filterquote= get_arg(command_parts, "FILTER", "").split(';')[0] if is_flag_present(command_parts, "FILTER") else None
+    # Apply filter from filterquote if present
+    print(filterquote, "filterquote")
+    if filterquote:
+        try:
+            print(df.shape, "df shape")
+            df = df.query(filterquote)
+            print(f"Filter applied: {filterquote}")
+            print(df.head())
+            print(df.shape)
+        except Exception as e:
+            print(f"Error applying filter: {e}")
+            response['text'] = f"Error applying filter: {e}"
+            return response
+
     feature_str = get_arg(command_parts, "FEATURES", "")
     Over_df = load_over_df(get_arg(command_parts, "OVER", "").split(';')[0]) if is_flag_present(command_parts, "OVER") else None
     features = parse_features(Over_df if Over_df is not None else df, feature_str)

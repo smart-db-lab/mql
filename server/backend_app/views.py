@@ -63,7 +63,7 @@ def process_query(request):
     data = request.data.get('input', '').strip()
     if not data:
         return Response({"error": "No query provided."}, status=status.HTTP_400_BAD_REQUEST)
-
+    
     data = rearrange_query(data)
     if isinstance(data, str):
         data = [data]
