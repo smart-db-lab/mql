@@ -31,14 +31,13 @@ def temp_generate(command, user=None):
         return response
 
     filterquote= get_arg(command_parts, "FILTER", "").split(';')[0] if is_flag_present(command_parts, "FILTER") else None
-    # Apply filter from filterquote if present
+
     print(filterquote, "filterquote")
     if filterquote:
         try:
             print(df.shape, "df shape")
             df = df.query(filterquote)
             print(f"Filter applied: {filterquote}")
-            print(df.head())
             print(df.shape)
         except Exception as e:
             print(f"Error applying filter: {e}")
