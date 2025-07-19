@@ -22,7 +22,6 @@ def temp_generate(command, user=None):
                            if t in map(str.upper, command_parts)), "PREDICTION")
     dataset_name = get_arg(command_parts, "FROM", "").split(';')[0]
 
-    # Load dataset
     try:
         conn = get_connection()
         df = pd.read_sql_query(f'SELECT * FROM "{dataset_name}"', conn)
@@ -30,7 +29,7 @@ def temp_generate(command, user=None):
         response['text'] = f"Error loading dataset: {e}"
         return response
 
-    filterquote= get_arg(command_parts, "FILTER", "").split(';')[0] if is_flag_present(command_parts, "FILTER") else None
+    filterquote= get_arg(command_parts, "WHERE", "").split(';')[0] if is_flag_present(command_parts, "WHERE") else None
 
     print(filterquote, "filterquote")
     if filterquote:
@@ -41,7 +40,7 @@ def temp_generate(command, user=None):
             print(df.shape)
         except Exception as e:
             print(f"Error applying filter: {e}")
-            response['text'] = f"Error applying filter: {e}"
+            response['text'] = f"Error applying filter{filterquote} : {e}"
             return response
 
     feature_str = get_arg(command_parts, "FEATURES", "")

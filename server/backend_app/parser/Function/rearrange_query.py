@@ -6,10 +6,10 @@ def clean_text(input_text):
     cleaned_text = re.sub(r'\/n', ' ', cleaned_text)
     cleaned_text = re.sub(r'\/r', ' ', cleaned_text)
     cleaned_text = re.sub(r'\/r\/n', ' ', cleaned_text)
-    cleaned_text = re.sub('WHERE ', ' ', cleaned_text)
+    # Remove 'WHERE ' only if followed by INSPECT/GENERATE/CONSTRUCT
+    cleaned_text = re.sub(r'WHERE\s+(?=(INSPECT|GENERATE|CONSTRUCT))', ' ', cleaned_text)
     cleaned_text = re.sub('BASED ON', ' ', cleaned_text)
     return cleaned_text
-
 
 def find_earliest_position(query, operation_types, start_pos):
     min_pos = len(query)
@@ -20,9 +20,8 @@ def find_earliest_position(query, operation_types, start_pos):
     return min_pos
 
 def rearrange_query(query):
-    clean_text(query)
-    print("query after rearranging.." ,query)
-
+    query = clean_text(query)
+    print("query after rearranging..", query)
     # Split the query into parts based on "WHERE" and "BASED ON"
     # parts = query.split(" WHERE ")
     # generate_construct_part = parts[0].strip()
@@ -30,8 +29,8 @@ def rearrange_query(query):
 
     # construct_part = construct_basedon_part[0].strip()
     # inspect_part = construct_basedon_part[1].strip()
-    inspect_part=''
-    construct_part=''
+    inspect_part = ''
+    construct_part = ''
     generate_part = ''
     inspect_pos = query.find("INSPECT")
     construct_pos = query.find("CONSTRUCT")
@@ -60,3 +59,7 @@ def rearrange_query(query):
     result = [inspect_part, construct_part, generate_part]
     print(result)
     return result
+
+# if __name__ == "__main__":
+#     test_query = "GENERATE DISPLAY OF PREDICTION medv ALGORITHM LR WITH ACCURACY 0 LABEL serialNo FEATURES age,rad FROM  Boston WHERE age>50 WHERE INSPECT age CATEGORIZE INTO L1,L2,L3,L4 FROM Boston;" #"INSPECT data WHERE condition CONSTRUCT new_data GENERATE report"
+#     print(rearrange_query(test_query))
