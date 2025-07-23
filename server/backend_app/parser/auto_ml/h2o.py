@@ -15,6 +15,7 @@ def h2o(X_train, X_test, y_train, y_test, target, operation_type, features, n_cl
         h2o.init(verbose=False)
         train_df = X_train.copy()
         if operation_type.lower() == "clustering":
+            print(X_train.columns,X_train.shape)
             train_h2o = h2o.H2OFrame(train_df)
             k = n_clusters if n_clusters else 3
             if hasattr(X_train, 'shape'):

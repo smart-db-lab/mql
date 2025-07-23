@@ -39,7 +39,7 @@ def pycaret(X, y, X_test, y_test, target, operation_type):
             with open(os.devnull, 'w') as devnull, \
                 contextlib.redirect_stdout(devnull), \
                 contextlib.redirect_stderr(devnull):
-                setup_cluster(data=X, session_id=42, silent=True)
+                setup_cluster(data=X, session_id=42,verbose = False)
                 # Use KMeans as default, or allow user to specify
                 model = create_cluster_model('kmeans')
                 cluster_labels = assign_cluster_model(model, X)['Cluster']

@@ -42,7 +42,7 @@ def clustering_generate(command, user=None):
     
     # Get algorithm and number of clusters
     algorithm_name = get_arg(command_parts, "ALGORITHM", "KMEANS")
-    n_clusters = int(get_arg(command_parts, "CLUSTER",offset=2, default=""))
+    n_clusters = int(get_arg(command_parts, "CLUSTER",offset=2, default="")) if "CLUSTER " in command else 3
     
     # Prepare data
     X = df[features].select_dtypes(include=[np.number])
@@ -125,40 +125,40 @@ def clustering_generate(command, user=None):
         results['h2o'] = None
 
     # === Start TPOT clustering ===
-    try:
-        from ..auto_ml.tpot import tpot
-        score, labels, model = tpot(operation_type, X, None, None, None)
-        if score is not None and labels is not None:
-            models['tpot'] = model
-            y_preds['tpot'] = labels
-            results['tpot'] = score
-            cluster_df = X.copy()
-            cluster_df['Class'] = labels
-            cluster_dfs['tpot'] = cluster_df
-            response['text'].append(f"TPOT clustering completed with {len(np.unique(labels))} clusters")
-        else:
-            response['text'].append("TPOT clustering not implemented for this operation")
-    except Exception as e:
-        print(f"TPOT clustering failed: {e}")
-        results['tpot'] = None
+    # try:
+    #     from ..auto_ml.tpot import tpot
+    #     score, labels, model = tpot(operation_type, X, None, None, None)
+    #     if score is not None and labels is not None:
+    #         models['tpot'] = model
+    #         y_preds['tpot'] = labels
+    #         results['tpot'] = score
+    #         cluster_df = X.copy()
+    #         cluster_df['Class'] = labels
+    #         cluster_dfs['tpot'] = cluster_df
+    #         response['text'].append(f"TPOT clustering completed with {len(np.unique(labels))} clusters")
+    #     else:
+    #         response['text'].append("TPOT clustering not implemented for this operation")
+    # except Exception as e:
+    #     print(f"TPOT clustering failed: {e}")
+    #     results['tpot'] = None
 
-    # === Start AutoSklearn2 clustering ===
-    try:
-        from ..auto_ml.autosklearn2 import autosklearn2
-        score, labels, model = autosklearn2(X, None, None, None, operation_type)
-        if score is not None and labels is not None:
-            models['autosklearn2'] = model
-            y_preds['autosklearn2'] = labels
-            results['autosklearn2'] = score
-            cluster_df = X.copy()
-            cluster_df['Class'] = labels
-            cluster_dfs['autosklearn2'] = cluster_df
-            response['text'].append(f"AutoSklearn2 clustering completed with {len(np.unique(labels))} clusters")
-        else:
-            response['text'].append("AutoSklearn2 clustering not implemented for this operation")
-    except Exception as e:
-        print(f"AutoSklearn2 clustering failed: {e}")
-        results['autosklearn2'] = None
+    # # === Start AutoSklearn2 clustering ===
+    # try:
+    #     from ..auto_ml.autosklearn2 import autosklearn2
+    #     score, labels, model = autosklearn2(X, None, None, None, operation_type)
+    #     if score is not None and labels is not None:
+    #         models['autosklearn2'] = model
+    #         y_preds['autosklearn2'] = labels
+    #         results['autosklearn2'] = score
+    #         cluster_df = X.copy()
+    #         cluster_df['Class'] = labels
+    #         cluster_dfs['autosklearn2'] = cluster_df
+    #         response['text'].append(f"AutoSklearn2 clustering completed with {len(np.unique(labels))} clusters")
+    #     else:
+    #         response['text'].append("AutoSklearn2 clustering not implemented for this operation")
+    # except Exception as e:
+    #     print(f"AutoSklearn2 clustering failed: {e}")
+    #     results['autosklearn2'] = None
 
     # Filter out None results
     valid_results = {k: v for k, v in results.items() if v is not None}
