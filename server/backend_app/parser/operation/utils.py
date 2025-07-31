@@ -27,7 +27,15 @@ def get_connection():
 def get_arg(command_parts, key, default=None, offset=1):
     try:
         idx = [p.upper() for p in command_parts].index(key.upper())
-        return command_parts[idx + offset]
+        arg = command_parts[idx + offset]
+        while '"' in arg:
+            arg = arg.replace('"', '')
+            next_arg = command_parts[idx + offset + 1]
+            if next_arg.endswith('"'):
+                return arg + ' ' + next_arg.replace('"', '')
+            arg += ' ' + next_arg
+            offset += 1
+        return arg
     except (ValueError, IndexError):
         return default
 

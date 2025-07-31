@@ -53,13 +53,17 @@ def temp_generate(command, user=None):
     
     if target in features:
         features.remove(target)
+    try:
+        print(target)
+        print(feature_str, "features_str", features)
+        y = df[target]
+        if operation_type.upper() == "CLASSIFICATION":
+            y = pd.Series(LabelEncoder().fit_transform(y), name=target)
 
-    y = df[target]
-    if operation_type.upper() == "CLASSIFICATION":
-        y = pd.Series(LabelEncoder().fit_transform(y), name=target)
-
-    X = df[features]
-    
+        X = df[features]
+    except KeyError as e:
+        response['text'] = f"Error: {e}. Please check the dataset and features names."
+        return response
     # Encode categorical features for classification
     if operation_type.upper() == "CLASSIFICATION":
         # Identify categorical columns
