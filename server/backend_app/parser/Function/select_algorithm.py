@@ -3,8 +3,9 @@ import pandas as pd
 import numpy as np
 from sklearn.cluster import DBSCAN, AgglomerativeClustering, KMeans
 from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier, GradientBoostingRegressor, GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsRegressor, KNeighborsClassifier
+from sklearn.svm import SVR, SVC
 
 
 from ..Function.display_result import display_results
@@ -24,11 +25,15 @@ def select_algorithm(operation_type, algorithm_name, **kwargs):
         "LR": LinearRegression(),
         "RF": RandomForestRegressor(),
         "KNN": KNeighborsRegressor(),
+        "SVR": SVR(),
+        "GBR": GradientBoostingRegressor(),
     }
     classification_algorithms = {
         "LOG": LogisticRegression(),
         "RFC": RandomForestClassifier(),
         "KNN": KNeighborsClassifier(),
+        "SVC": SVC(),
+        "GBC": GradientBoostingClassifier(),
     }
     clustering_algorithms = {
         "KMEANS": KMeans(n_clusters=(int(kwargs.get('n_clusters')) if kwargs.get('n_clusters') else 3)),

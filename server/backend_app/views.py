@@ -71,7 +71,6 @@ def process_query(request):
     responses = {}
     for idx, cmd in enumerate(data):
         print(cmd, "cmd")
-
         if cmd.strip():
             for resp in query_process(cmd, user=user):  
                 # Save response and graph if present
