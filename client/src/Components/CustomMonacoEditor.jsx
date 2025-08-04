@@ -1,8 +1,35 @@
 
-import React from 'react';
+import React, { useContext, useRef, useEffect } from 'react';
 import MonacoEditor from '@monaco-editor/react';
+import { ThemeContext } from '../utility/ThemeContext';
+
+// Custom hook for theme context with fallback
+const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    console.warn('useTheme must be used within a ThemeProvider. Using default light mode.');
+    return { darkMode: false, setDarkMode: () => {} };
+  }
+  return context;
+};
 
 const CustomMonacoEditor = ({ query, setQuery, setTestFile }) => {
+  const { darkMode } = useTheme();
+  const editorRef = useRef(null);
+  const monacoRef = useRef(null);
+
+  // Effect to update theme when darkMode changes
+  useEffect(() => {
+    if (monacoRef.current && editorRef.current) {
+      const newTheme = darkMode ? 'vs-dark' : 'vs';
+      monacoRef.current.editor.setTheme(newTheme);
+    }
+  }, [darkMode]);
+
+  const handleEditorDidMount = (editor, monaco) => {
+    editorRef.current = editor;
+    monacoRef.current = monaco;
+  };
   const handleEditorWillMount = (monaco) => {
 
     monaco.languages.register({ id: 'customQueryLanguage' });
@@ -11,7 +38,7 @@ const CustomMonacoEditor = ({ query, setQuery, setTestFile }) => {
     monaco.languages.setMonarchTokensProvider('customQueryLanguage', {
       tokenizer: {
         root: [
-          [/\b(CONSTRUCT|SUPERVISED|FOR|PREDICTION|TARGET|FEATURES|ALGORITHM|TEST|FROM|GENERATE|DISPLAY|OF|WITH|ACCURACY|LABEL|CLASSIFICATION|ALGORITHMS|CLUSTERING|INSPECT|CHECKNULL|ENCODING|METHOD|TARGET-FEATURE|DEDUPLICATE|CATEGORIZE|INTO|IMPUTE|USING|STRATEGY|SHOW|AS|ON)\b/, 'keyword'],
+          [/\b(CONSTRUCT|SUPERVISED|FOR|PREDICTION|TARGET|FEATURES|ALGORITHM|TEST|FROM|GENERATE|DISPLAY OF|WITH|ACCURACY|LABEL|CLASSIFICATION|ALGORITHMS|CLUSTERING|INSPECT|CHECKNULL|ENCODING|METHOD|TARGET-FEATURE|DEDUPLICATE|CATEGORIZE|INTO|IMPUTE|USING|STRATEGY|SHOW|AS|ON)\b/, 'keyword'],
           [/\b(LR|RF|SVR|LOG|RFC|medv|age|rad|Boston|Species|KNN|ProductID|Iris|KMeans|BostonMiss|Ordinal|One-Hot|Label|mean|L1|L2|L3|L4)\b/, 'identifier'],
           [/[0-9]+/, 'number'],
           [/[;,.]/, 'delimiter'],
@@ -55,8 +82,8 @@ const CustomMonacoEditor = ({ query, setQuery, setTestFile }) => {
           { label: 'TEST', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'TEST' },
           { label: 'FROM', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'FROM' },
           { label: 'GENERATE', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'GENERATE' },
-          { label: 'DISPLAY', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'DISPLAY' },
-          { label: 'OF', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'OF' },
+          { label: 'DISPLAY OF', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'DISPLAY OF' },
+          // { label: 'OF', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'OF' },
           { label: 'WITH', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'WITH' },
           { label: 'ACCURACY', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'ACCURACY' },
           { label: 'LABEL', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'LABEL' },
@@ -83,7 +110,7 @@ const CustomMonacoEditor = ({ query, setQuery, setTestFile }) => {
           { label: 'LR', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'LR' },
           { label: 'RF', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'RF' },
           { label: 'RandomForestClassifier', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'RFC' },
-          { label: 'KMeans', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'KMEANS' },
+          { label: 'KMEANS', kind: monaco.languages.CompletionItemKind.Keyword, insertText: 'KMEANS' },
         ];
         return { suggestions };
       }
@@ -94,6 +121,7 @@ const CustomMonacoEditor = ({ query, setQuery, setTestFile }) => {
     <MonacoEditor
       height="300px"
       defaultLanguage="customQueryLanguage"
+      theme={darkMode ? 'vs-dark' : 'vs'}
       value={query}
       onChange={(value) => {
         setQuery(value);
@@ -101,15 +129,16 @@ const CustomMonacoEditor = ({ query, setQuery, setTestFile }) => {
         setTestFile(q);
       }}
       beforeMount={handleEditorWillMount}
+      onMount={handleEditorDidMount}
       options={{
         selectOnLineNumbers: true,
         roundedSelection: false,
         readOnly: false,
         cursorStyle: "line",
-        lineNumbers:false,
+        lineNumbers: false,
         automaticLayout: true,
         wordWrap: "on", 
-        fontSize: 16    
+        fontSize: 16
       }}
     />
   );

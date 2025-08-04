@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaSun, FaMoon, FaBars, FaTimes } from "react-icons/fa";
-import useTheme from "../hooks/useTheme";
+import { ThemeContext } from "../utility/ThemeContext";
 import Cookies from "js-cookie";
 import DropdownUser from "./DropdownUser";
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isDark, setIsDark] = useTheme();
+  const { darkMode, setDarkMode } = useContext(ThemeContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -21,6 +21,11 @@ function Navbar() {
 
   return (
     <div className="w-full border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-900 dark:text-white">
+      {/* Debug banner */}
+      {/* <div className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 px-2 py-1 text-xs text-center">
+        Navbar: {darkMode ? 'Dark' : 'Light'} Mode
+      </div> */}
+      
       <div className="flex justify-between items-center px-2 py-1">
         {/* Logo */}
         <div className="cursor-pointer" onClick={() => navigate("/")}>
@@ -56,11 +61,11 @@ function Navbar() {
         {/* Right Side Buttons */}
         <div className="flex items-center gap-4">
           <button
-            onClick={() => setIsDark(!isDark)}
-            title={isDark ? "Light Mode" : "Dark Mode"}
+            onClick={() => setDarkMode(!darkMode)}
+            title={darkMode ? "Light Mode" : "Dark Mode"}
             className="text-xl hover:text-yellow-400 transition"
           >
-            {isDark ? <FaSun /> : <FaMoon />}
+            {darkMode ? <FaSun /> : <FaMoon />}
           </button>
           {isLoggedIn ? (
             <DropdownUser />
