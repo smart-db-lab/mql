@@ -3,9 +3,11 @@ import pandas as pd
 from sqlalchemy import text
 import os
 from .utility import response_schema, db_engine
+from ..operation.utils import get_arg
 def categorize(table_name,cmd):
-    feature=cmd[cmd.index("INSPECT") + 1] 
-    labels=[cat for cat in cmd[cmd.index("INTO") + 1].split(',')]
+    feature = get_arg(cmd, "INSPECT", "")
+    labels = [cat for cat in get_arg(cmd, "INTO", "").split(',')]
+    # print(labels, feature)
     response = response_schema()
     query = text(f'SELECT * FROM "{table_name}"')
     conn = db_engine()
@@ -29,7 +31,7 @@ def categorize(table_name,cmd):
 
     df['Category'] = df[feature].apply(assign_label)
     df.to_sql(table_name, conn, if_exists='replace', index=False)
-    response['text'].append("Categorize Done!")
+    response['text'].append(f"Categorize Done!")
     return response
 
 # min_value=5

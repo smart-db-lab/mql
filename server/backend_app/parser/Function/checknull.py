@@ -25,10 +25,12 @@ def checknull(table_name):
                 response['text'].append(f" {column_name},")
                 for row in null_rows:
                     print(row)
-            else:
-                print(f" in {column_name} column.")
+            # else:
+                # print(f" in {column_name} column.")
         if u:
             response['text'].append(f"No null values found in {table_name}")
+        # print(" in checknull function", response)
+        
         return response
     except Exception as e:
         response['text']= f"Error occurred: {e}"
