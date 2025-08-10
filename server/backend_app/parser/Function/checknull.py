@@ -18,7 +18,7 @@ def checknull(table_name):
         for column_name in column_names:
             null_rows = [row for row in rows if row[column_names.index(column_name)] is None]
             if null_rows and u:
-                response['text'].append(["null value exist in column ", " : "])
+                response['text'].append([f"null value exist in column {column_name} :", f" {null_rows} "])
                 u = 0
             if null_rows:
                 print(f"  Null values found in {column_name} column:")
