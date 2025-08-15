@@ -23,24 +23,28 @@ def upload_file(request):
     """
     Handle CSV/SQL file upload, store in media, and create DB table if CSV.
     """
-    user = request.user
-    file = request.FILES.get('file')
-    if not file:
-        return Response({"error": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        user = request.user
+        file = request.FILES.get('file')
+        if not file:
+            return Response({"error": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-    file_type = 'csv' if file.name.endswith('.csv') else 'sql'
-    uploaded = UploadedFile.objects.create(user=user, file=file, file_type=file_type)
+        file_type = 'csv' if file.name.endswith('.csv') else 'sql'
+        uploaded = UploadedFile.objects.create(user=user, file=file, file_type=file_type)
 
-    if file_type == 'csv':
-        try:
-            table_name = csv_to_db(uploaded.file, user_id=user.id,csv_name= file.name)
-            uploaded.table_name = table_name
-            uploaded.save()
-        except Exception as e:
-            uploaded.delete()
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if file_type == 'csv':
+            try:
+                table_name = csv_to_db(uploaded.file, user_id=user.id,csv_name= file.name)
+                uploaded.table_name = table_name
+                uploaded.save()
+            except Exception as e:
+                uploaded.delete()
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return Response({"message": "File uploaded successfully.", "file_id": uploaded.id}, status=status.HTTP_201_CREATED)
+        return Response({"message": "File uploaded successfully.", "file_id": uploaded.id}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        print("error",str(e))
+        return Response({"error": "Error uploading file."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

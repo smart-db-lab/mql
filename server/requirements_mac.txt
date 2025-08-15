@@ -1,0 +1,28 @@
+altair==5.5.0
+category_encoders==2.6.3
+dill==0.3.8
+Django==5.0.3
+djangorestframework==3.14.0
+keras==3.3.3
+matplotlib==3.7.0
+numpy==1.26.4
+pandas==2.1.4        
+psycopg2==2.9.9
+psycopg2_binary==2.9.9
+python-dotenv==1.0.1
+scikit_learn==1.4.1.post1
+seaborn==0.13.2
+SQLAlchemy==2.0.29
+sympy==1.12
+tensorflow==2.16.1
+# For Windows
+# tensorflow_intel==2.16.1
+torch==2.2.0
+TPOT==0.12.2
+django-cors-headers
+h2o==3.46.0.7
+pycaret==3.3.2
+djangorestframework-simplejwt==5.5.1
+cryptography==45.0.6
+xgboost
+flaml==2.3.5

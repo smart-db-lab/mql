@@ -25,3 +25,5 @@ sympy==1.14.0
 tensorflow==2.19.0
 torch==2.7.1
 tpot==0.12.1
+xgboost
+flaml==2.3.5

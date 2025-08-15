@@ -97,7 +97,8 @@ def temp_generate(command, user=None):
         'sklearn': select_algorithm(operation_type, get_arg(command_parts, "ALGORITHM", "")),
         'tpot': None,
         'autosklearn2': None,  
-        'h2o': None
+        'h2o': None,
+        'flaml': None
     }
 
     results = {}
@@ -127,6 +128,13 @@ def temp_generate(command, user=None):
         results['tpot'], y_preds['tpot'], models['tpot'] = tpot(operation_type, X_train, y_train, X_test, y_test)
     except Exception as e:
         print(f"tpot failed: {e}")
+        pass
+
+    try:
+        from ..auto_ml.flaml import flaml
+        results['flaml'], y_preds['flaml'], models['flaml'] = flaml(X_train, X_test, y_train, y_test, target, operation_type, features)
+    except Exception as e:
+        print(f"flaml failed: {e}")
         pass
 
 
