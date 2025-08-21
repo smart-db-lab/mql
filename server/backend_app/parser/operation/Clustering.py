@@ -85,6 +85,7 @@ def clustering_generate(command, user=None):
             cluster_dfs['sklearn'] = cluster_df
             response['text'].append(f"Sklearn {algorithm_name} clustering completed with {len(np.unique(labels))} clusters")
     except Exception as e:
+        response['text'].append(f"Sklearn {algorithm_name} clustering failed: {e}")
         print(f"Sklearn clustering failed: {e}")
         results['sklearn'] = None
 
@@ -103,6 +104,7 @@ def clustering_generate(command, user=None):
         else:
             response['text'].append("PyCaret clustering not implemented for this operation")
     except Exception as e:
+        response['text'].append(f"PyCaret clustering failed: {e}")
         print(f"PyCaret clustering failed: {e}")
         results['pycaret'] = None
 

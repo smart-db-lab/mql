@@ -3,7 +3,7 @@ import os
 def check_null_values_in_db(db_file, table_name):
     global response
     # connection = sqlite3.connect(db_file)
-    connection_string = os.getenv("POSTGES_URL")
+    connection_string = os.getenv("POSTGRES_URL")
     query = f'SELECT * FROM "{table_name}"'
     conn = create_engine(connection_string)
     cursor = conn.cursor()
