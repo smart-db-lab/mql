@@ -1,4 +1,4 @@
-﻿# MQL
+﻿# Machine Learning Query Language (MQL) 
 Implementing a Declarative Query Language for High Level Machine Learning Application Design 
 
 ## Technology used
@@ -345,4 +345,5 @@ If the image does not display, [download it here](./all_report/output-10-report.
 - Column names must match exactly as they appear in your database
 
 - Ensure your database connection is active before running queries
+
 
