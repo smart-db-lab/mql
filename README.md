@@ -126,13 +126,13 @@ Output
         GENERATE  DISPLAY OF CLASSIFICATION Survived ALGORITHM LOG LABEL RecordID FEATURES Pclass,Sex,Age,Fare FROM train;
 
 ```
-Output: 
+## Output of MQL Query: 
 
 ![MQL Report](./mql_report.png)
 
 If the image does not display, [download it here](./mql_report.png).
 
-## Example query
+## Examples of MQL query
 
 <!-- ## Construct 
 
@@ -345,6 +345,7 @@ If the image does not display, [download it here](./all_report/output-10-report.
 - Column names must match exactly as they appear in your database
 
 - Ensure your database connection is active before running queries
+
 
 
 
