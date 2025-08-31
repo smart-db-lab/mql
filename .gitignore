@@ -1,0 +1,15 @@
+.idea
+.vscode
+**/__pycache__/
+.venv*
+/servernew/
+logs.log
+# server_refactor/
+servernew/
+**/.DS_Store
+**/__pycache__
+.env
+*.ipynb
+.pytest_cache/
+server_old/
+*.csv

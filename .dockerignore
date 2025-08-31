@@ -1,0 +1,8 @@
+.gitm/
+.venv/
+.venv11/
+.vscode/
+AutoML*
+*.egg-info/
+# Ignore Python cache files and directories
+*.log
