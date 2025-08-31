@@ -1,8 +1,6 @@
 ﻿# MQL
 Implementing a Declarative Query Language for High Level Machine Learning Application Design 
 
-Create Model from database and analyze with more functionality.
-
 ## Technology used
 - Python 3.11 (required)
 - JAVA runtime
@@ -347,3 +345,4 @@ If the image does not display, [download it here](./all_report/output-10-report.
 - Column names must match exactly as they appear in your database
 
 - Ensure your database connection is active before running queries
+
