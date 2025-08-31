@@ -12,7 +12,7 @@ Implementing a Declarative Query Language for High Level Machine Learning Applic
 ## To run the application
 firstly clone this repositoroy by 
 ```
-git clone "https://github.com/ml-cou/MQL"
+git clone "https://github.com/smart-db-lab/mql.git"
 ```
 
 **for database setup:** 
