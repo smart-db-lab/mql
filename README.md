@@ -73,7 +73,7 @@ To run Backend:
     pip install -r requirements.txt
     python manage.py runserver
 ```
-Also install Java ( openjdk ) runtime.[Needed to run h2o automl package]
+Also install Java ( openjdk ) runtime environment. [It is required to run h2o automl package]
 
 ### All done?
 - Now keep running frontend, backend and databases. go to the application. [e.g. https://localhost:5173]
@@ -345,5 +345,6 @@ If the image does not display, [download it here](./all_report/output-10-report.
 - Column names must match exactly as they appear in your database
 
 - Ensure your database connection is active before running queries
+
 
 
